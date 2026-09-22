@@ -1,28 +1,49 @@
 ---
+import { Icon } from '@astrojs/starlight/components'
+
 import type { Entry } from '../libs/entries'
 
 interface Props {
   entries: Entry[]
+  selected: string | undefined
 }
 
-const { entries } = Astro.props
+const { entries, selected } = Astro.props
 ---
 
-<ul>
-  {entries.map((entry) =>
-    entry.type === 'folder' ? (
-      <li>
-        <details>
-          <summary data-panel={entry.id}>{entry.name}</summary>
-          <Astro.self entries={entry.children} />
-        </details>
-      </li>
-    ) : (
-      <li>
-        <button type="button" data-panel={entry.id}>
-          {entry.name}
-        </button>
-      </li>
-    ),
-  )}
-</ul>
+{entries.map((entry) => {
+  const isFolder = entry.type === 'folder'
+  const isFolderWithEntries = isFolder && entry.children.length > 0
+  const isSelected = entry.id === selected
+
+  return (
+    <li
+      aria-expanded={isFolderWithEntries ? 'true' : undefined}
+      aria-selected={isSelected ? 'true' : 'false'}
+      class="sfe-tree-item"
+      data-panel={entry.id}
+      role="treeitem"
+      tabindex={isSelected ? 0 : -1}
+    >
+      {isFolderWithEntries && <Icon name="right-caret" class="sfe-tree-toggle" />}
+      <span class="sfe-tree-label">{entry.name}</span>
+      {isFolderWithEntries && (
+        <ul role="group">
+          <Astro.self entries={entry.children} {selected} />
+        </ul>
+      )}
+    </li>
+  )
+})}
+
+<style>
+  .sfe-tree-item {
+    &[aria-expanded='false'] > [role='group'] {
+      display: none;
+    }
+
+    &[aria-selected='true'] {
+      border: 1px solid green;
+    }
+  }
+</style>

@@ -54,7 +54,6 @@ export function processEntries(html: string, instance: number): Entries {
   }
 }
 
-// FIXME(HiDeoo) less duiplication?
 interface Entries {
   list: Entry[]
   tree: Entry[]

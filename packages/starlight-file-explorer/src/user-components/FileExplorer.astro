@@ -13,15 +13,18 @@ const instance = locals[instanceSymbol]++
 
 const html = await Astro.slots.render('default')
 const { list, tree } = processEntries(html, instance)
+
+// TODO(HiDeoo)
+const selected = list[0]
 ---
 
 <starlight-file-explorer>
-  <div class="sfe-tree not-content">
-    <Tree entries={tree} />
-  </div>
-  <div class="panels">
+  <ul role="tree" aria-label="TODO(HiDeoo)" class="sfe-tree not-content">
+    <Tree entries={tree} selected={selected?.id} />
+  </ul>
+  <div>
     {list.map((entry) => (
-      <div id={entry.id}>
+      <div hidden={entry !== selected} id={entry.id}>
         <div class="panel-header not-content">{entry.name}</div>
         <Fragment set:html={entry.content} />
       </div>
@@ -34,3 +37,122 @@ const { list, tree } = processEntries(html, instance)
     border: 1px solid red;
   }
 </style>
+
+<script>
+  // https://www.w3.org/WAI/ARIA/apg/patterns/treeview/examples/treeview-1a/
+  customElements.define(
+    'starlight-file-explorer',
+    class StarlightFileExplorer extends HTMLElement {
+      #selected: HTMLElement | undefined
+      #walker = document.createTreeWalker(this, NodeFilter.SHOW_ELEMENT, (node) => {
+        if (!(node instanceof HTMLElement)) return NodeFilter.FILTER_SKIP
+
+        const role = node.getAttribute('role')
+
+        if (role === 'treeitem') return NodeFilter.FILTER_ACCEPT
+        if (role === 'group' && node.parentElement?.getAttribute('aria-expanded') === 'false') {
+          return NodeFilter.FILTER_REJECT
+        }
+
+        return NodeFilter.FILTER_SKIP
+      })
+
+      constructor() {
+        super()
+
+        const state = this.querySelector('[aria-selected="true"]')
+        if (state instanceof HTMLElement) this.#selected = state
+
+        this.addEventListener('click', this.#handleClick)
+        this.addEventListener('keydown', this.#handleKeydown)
+      }
+
+      #handleClick = (event: MouseEvent) => {
+        if (!(event.target instanceof Element)) return
+
+        const item = event.target.closest<HTMLElement>('[role="treeitem"]')
+        if (!item) return
+
+        if (event.target.closest('.sfe-tree-toggle')) {
+          this.#setExpanded(item, item.getAttribute('aria-expanded') !== 'true')
+        } else if (event.target.closest('.sfe-tree-label')) {
+          this.#setSelected(item)
+          this.#setExpanded(item, true)
+        }
+      }
+
+      #handleKeydown = (event: KeyboardEvent) => {
+        if (!(event.target instanceof Element)) return
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+
+        const item = event.target.closest<HTMLElement>('[role="treeitem"]')
+        if (!item) return
+
+        this.#walker.currentNode = item
+        const isExpanded = item.getAttribute('aria-expanded')
+
+        switch (event.key) {
+          case 'ArrowDown':
+            this.#setSelected(this.#walker.nextNode())
+            break
+          case 'ArrowUp':
+            this.#setSelected(this.#walker.previousNode())
+            break
+          case 'ArrowRight':
+            if (isExpanded === 'true') this.#setSelected(this.#walker.nextNode())
+            else this.#setExpanded(item, true)
+            break
+          case 'ArrowLeft':
+            if (isExpanded === 'true') this.#setExpanded(item, false)
+            else this.#setSelected(this.#walker.parentNode())
+            break
+          case 'Home':
+            this.#walker.currentNode = this
+            this.#setSelected(this.#walker.firstChild())
+            break
+          case 'End': {
+            this.#walker.currentNode = this.lastElementChild ?? this
+            this.#setSelected(this.#walker.previousNode())
+            break
+          }
+          case 'Enter':
+          case ' ': {
+            this.#setExpanded(item, isExpanded !== 'true')
+            break
+          }
+          default: {
+            return
+          }
+        }
+
+        event.preventDefault()
+      }
+
+      #setExpanded(item: HTMLElement, expanded: boolean) {
+        if (item.hasAttribute('aria-expanded')) item.setAttribute('aria-expanded', String(expanded))
+      }
+
+      #setSelected(item: Node | null | undefined) {
+        if (!(item instanceof HTMLElement)) return
+
+        if (this.#selected) {
+          this.#selected.tabIndex = -1
+          this.#selected.setAttribute('aria-selected', 'false')
+          this.#getPanel(this.#selected)?.setAttribute('hidden', '')
+        }
+
+        item.tabIndex = 0
+        item.setAttribute('aria-selected', 'true')
+        this.#getPanel(item)?.removeAttribute('hidden')
+
+        item.focus()
+
+        this.#selected = item
+      }
+
+      #getPanel(item: HTMLElement) {
+        return document.getElementById(item.dataset['panel'] ?? '')
+      }
+    },
+  )
+</script>
