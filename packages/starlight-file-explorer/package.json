@@ -14,7 +14,12 @@
     "lint": "eslint . --cache --max-warnings=0",
     "prepack": "pnpm build"
   },
+  "dependencies": {
+    "hast-util-to-html": "^9.0.5",
+    "satteri": "^0.10.3"
+  },
   "devDependencies": {
+    "@types/hast": "^3.0.5",
     "publint": "^0.3.24",
     "tsdown": "^0.23.0"
   },

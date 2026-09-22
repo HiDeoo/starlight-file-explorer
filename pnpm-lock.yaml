@@ -172,7 +172,16 @@ importers:
       astro:
         specifier: ^7.0.2
         version: 7.3.3(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@types/node@24.13.6)(yaml@2.9.1)
+      hast-util-to-html:
+        specifier: ^9.0.5
+        version: 9.0.5
+      satteri:
+        specifier: ^0.10.3
+        version: 0.10.5
     devDependencies:
+      '@types/hast':
+        specifier: ^3.0.5
+        version: 3.0.5
       publint:
         specifier: ^0.3.24
         version: 0.3.24
@@ -2693,6 +2702,17 @@ packages:
           targets:
             - cpu: x64
               os: win32
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-5C2pSCG5Qi63a/Wq9N4Jd+BLoyC4r/YUjYlalLCO4iM=
+            type: binary
+            url: https://unofficial-builds.nodejs.org/download/release/v26.10.0/node-v26.10.0-linux-x64-musl.tar.gz
+          targets:
+            - cpu: x64
+              os: linux
+              libc: musl
     version: 26.10.0
     hasBin: true
 

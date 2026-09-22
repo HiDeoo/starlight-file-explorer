@@ -1,5 +1,36 @@
 ---
-import Test from '../components/Test.astro'
+import type { APIContext } from 'astro'
+
+import Tree from '../components/Tree.astro'
+import { processEntries } from '../libs/entries'
+
+const instanceSymbol = Symbol.for('starlight-file-explorer:instance')
+
+// https://github.com/withastro/starlight/blob/5a50fd103d4faf1d00592aa520b12e855fe940d7/packages/starlight/src/user-components/Tabs.astro#L11-L49
+const locals = Astro.locals as APIContext['locals'] & { [instanceSymbol]?: number }
+locals[instanceSymbol] ??= 0
+const instance = locals[instanceSymbol]++
+
+const html = await Astro.slots.render('default')
+const { list, tree } = processEntries(html, instance)
 ---
 
-<Test />
+<starlight-file-explorer>
+  <div class="sfe-tree not-content">
+    <Tree entries={tree} />
+  </div>
+  <div class="panels">
+    {list.map((entry) => (
+      <div id={entry.id}>
+        <div class="panel-header not-content">{entry.name}</div>
+        <Fragment set:html={entry.content} />
+      </div>
+    ))}
+  </div>
+</starlight-file-explorer>
+
+<style>
+  .sfe-tree {
+    border: 1px solid red;
+  }
+</style>

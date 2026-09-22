@@ -1,0 +1,14 @@
+---
+import { EntryTagName } from '../libs/entries'
+
+interface Props {
+  // TODO(HiDeoo) validation
+  name: string
+}
+
+const { name } = Astro.props
+---
+
+<EntryTagName data-type="folder" data-name={name}>
+  <slot />
+</EntryTagName>

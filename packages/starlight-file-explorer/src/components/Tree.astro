@@ -1,0 +1,28 @@
+---
+import type { Entry } from '../libs/entries'
+
+interface Props {
+  entries: Entry[]
+}
+
+const { entries } = Astro.props
+---
+
+<ul>
+  {entries.map((entry) =>
+    entry.type === 'folder' ? (
+      <li>
+        <details>
+          <summary data-panel={entry.id}>{entry.name}</summary>
+          <Astro.self entries={entry.children} />
+        </details>
+      </li>
+    ) : (
+      <li>
+        <button type="button" data-panel={entry.id}>
+          {entry.name}
+        </button>
+      </li>
+    ),
+  )}
+</ul>
