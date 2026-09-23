@@ -64,8 +64,24 @@ test.for([
 
 test('throws with multiple selected entries', () => {
   expect(() =>
-    processEntries(root(file('file-1a', { selected: true }), file('file-1b', { selected: true })), 0),
-  ).toThrowErrorMatchingInlineSnapshot(`[Error: // TODO(HiDeoo) multiple selected]`)
+    processEntries(
+      root(
+        folder('folder-1', { selected: true }, file('file-2', { selected: true })),
+        file('file-1', { selected: true }),
+      ),
+      0,
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    Multiple entries are selected in a \`<FileExplorer>\` component.
+
+    ---
+
+    Only one entry can use the \`selected\` prop. The following entries are currently selected:
+
+    - folder-1/
+    - folder-1/file-2
+    - file-1
+  `)
 })
 
 test('expands collapsed folders containing the selected entry', () => {

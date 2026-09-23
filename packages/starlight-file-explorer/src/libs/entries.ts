@@ -1,3 +1,4 @@
+import { AstroError } from 'astro/errors'
 import type { Element, Root } from 'hast'
 import { toHtml } from 'hast-util-to-html'
 import { htmlToHast } from 'satteri'
@@ -82,7 +83,16 @@ export function processEntries(html: string, instance: number): Entries {
 function assertSingleSelectedEntry(entries: Entry[]) {
   if (entries.length <= 1) return
 
-  throw new Error('// TODO(HiDeoo) multiple selected')
+  throw new AstroError(
+    'Multiple entries are selected in a `<FileExplorer>` component.',
+    `Only one entry can use the \`selected\` prop. The following entries are currently selected:\n\n${entries.map((entry) => `- ${getEntryPath(entry)}`).join('\n')}`,
+  )
+}
+
+function getEntryPath(entry: Entry) {
+  let path = entry.type === 'folder' ? `${entry.name}/` : entry.name
+  for (let parent = entry.parent; parent; parent = parent.parent) path = `${parent.name}/${path}`
+  return path
 }
 
 interface Entries {
