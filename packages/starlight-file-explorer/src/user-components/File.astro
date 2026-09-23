@@ -1,13 +1,7 @@
 ---
-import { EntryTagName } from '../libs/entries'
+import { EntryTagName, type EntryProps } from '../libs/entries'
 
-// TODO(HiDeoo) JSDoc
-// TODO(HiDeoo) shared with folder
-interface Props {
-  // TODO(HiDeoo) validation
-  name: string
-  selected?: boolean
-}
+type Props = EntryProps
 
 const { name, selected } = Astro.props
 ---

@@ -105,6 +105,26 @@ test('throws with no entries', () => {
   `)
 })
 
+test('throws with an empty name at the root', () => {
+  expect(() => processEntries(folder(''), 0)).toThrowErrorMatchingInlineSnapshot(`
+    The \`<Folder>\` component expects a non-empty \`name\` prop.
+
+    ---
+
+    Set a non-empty \`name\` prop on the \`<Folder>\` component at the root of the \`<FileExplorer>\` component.
+  `)
+})
+
+test('throws with an empty name in a folder', () => {
+  expect(() => processEntries(folder('folder-1', {}, file('')), 0)).toThrowErrorMatchingInlineSnapshot(`
+    The \`<File>\` component expects a non-empty \`name\` prop.
+
+    ---
+
+    Set a non-empty \`name\` prop on the \`<File>\` component inside \`folder-1/\`.
+  `)
+})
+
 test('expands collapsed folders containing the selected entry', () => {
   const { list } = processEntries(
     root(

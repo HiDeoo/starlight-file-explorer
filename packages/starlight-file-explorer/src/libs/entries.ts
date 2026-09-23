@@ -43,11 +43,20 @@ export function processEntries(html: string, instance: number): Entries {
 
   function getEntryFromNode(node: Element, parent?: FolderEntry): Entry {
     const { dataCollapsed, dataName, dataSelected, dataType } = node.properties
+    const name = String(dataName ?? '')
+
+    if (!name.trim()) {
+      const component = dataType === 'folder' ? '<Folder>' : '<File>'
+      throw new AstroError(
+        `The \`${component}\` component expects a non-empty \`name\` prop.`,
+        `Set a non-empty \`name\` prop on the \`${component}\` component ${parent ? `inside \`${getEntryPath(parent)}\`` : 'at the root of the `<FileExplorer>` component'}.`,
+      )
+    }
 
     const entry: Entry = {
       content: '',
       id: `sfe-${instance}-${count++}`,
-      name: String(dataName),
+      name,
       parent,
       ...(dataType === 'folder'
         ? {
@@ -138,3 +147,9 @@ interface FolderEntry extends BaseEntry {
 }
 
 export type Entry = FileEntry | FolderEntry
+
+// TODO(HiDeoo) JSDoc
+export interface EntryProps {
+  name: string
+  selected?: boolean
+}

@@ -1,13 +1,9 @@
 ---
-import { EntryTagName } from '../libs/entries'
+import { EntryTagName, type EntryProps } from '../libs/entries'
 
 // TODO(HiDeoo) JSDoc
-// TODO(HiDeoo) shared with file
-interface Props {
+interface Props extends EntryProps {
   collapsed?: boolean
-  // TODO(HiDeoo) validation
-  name: string
-  selected?: boolean
 }
 
 const { collapsed, name, selected } = Astro.props
