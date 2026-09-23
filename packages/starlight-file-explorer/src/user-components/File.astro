@@ -3,9 +3,15 @@ import { EntryTagName, type EntryProps } from '../libs/entries'
 
 type Props = EntryProps
 
-const { description, name, selected } = Astro.props
+const { description, icon, name, selected } = Astro.props
 ---
 
-<EntryTagName data-type="file" data-description={description} data-name={name} data-selected={selected || undefined}>
+<EntryTagName
+  data-type="file"
+  data-description={description}
+  data-icon={icon}
+  data-name={name}
+  data-selected={selected || undefined}
+>
   <slot />
 </EntryTagName>

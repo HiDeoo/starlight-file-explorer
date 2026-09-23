@@ -33,6 +33,24 @@ test('extracts descriptions', () => {
   expect(list.map((entry) => entry.description)).toEqual(['Description 1', undefined])
 })
 
+test('resolves icons', () => {
+  const { list } = processEntries(
+    root(
+      folder('folder-1', {}, file('file-2')),
+      folder('folder-2', { icon: 'star' }),
+      file('file-1', { icon: 'rocket' }),
+    ),
+    0,
+  )
+
+  expect(list.map((entry) => [entry.name, entry.icon])).toEqual([
+    ['folder-1', 'seti:folder'],
+    ['file-2', 'seti:default'],
+    ['folder-2', 'star'],
+    ['file-1', 'rocket'],
+  ])
+})
+
 test('lists all entries with unique IDs', () => {
   const { list } = processEntries(root(folder('folder-1', {}, file('file-2')), file('file-1')), 3)
 
@@ -168,12 +186,13 @@ function folder(name: string, options: EntryOptions = {}, ...content: string[]) 
 function makeEntry(
   type: Entry['type'],
   name: string,
-  { collapsed, description, selected }: EntryOptions,
+  { collapsed, description, icon, selected }: EntryOptions,
   content: string,
 ) {
   const attributes = [`data-type="${type}"`, `data-name="${name}"`]
   if (collapsed) attributes.push('data-collapsed="true"')
   if (description) attributes.push(`data-description="${description}"`)
+  if (icon) attributes.push(`data-icon="${icon}"`)
   if (selected) attributes.push('data-selected="true"')
   return `<${EntryTagName} ${attributes.join(' ')}>${content}</${EntryTagName}>`
 }
@@ -181,5 +200,6 @@ function makeEntry(
 interface EntryOptions {
   collapsed?: boolean
   description?: string
+  icon?: string
   selected?: boolean
 }

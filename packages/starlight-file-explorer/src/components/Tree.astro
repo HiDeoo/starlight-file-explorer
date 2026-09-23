@@ -26,6 +26,7 @@ const { entries, selected } = Astro.props
       tabindex={isSelected ? 0 : -1}
     >
       {isFolderWithEntries && <Icon name="right-caret" class="sfe-tree-toggle" />}
+      <Icon name={entry.icon} class="sfe-tree-icon" />
       <span class="sfe-tree-label">{entry.name}</span>
       {isFolderWithEntries && (
         <ul role="group">

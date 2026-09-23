@@ -1,3 +1,4 @@
+import type { StarlightIcon } from '@astrojs/starlight/types'
 import { AstroError } from 'astro/errors'
 import type { Element, Root } from 'hast'
 import { toHtml } from 'hast-util-to-html'
@@ -42,7 +43,8 @@ export function processEntries(html: string, instance: number): Entries {
   }
 
   function getEntryFromNode(node: Element, parent?: FolderEntry): Entry {
-    const { dataCollapsed, dataDescription, dataName, dataSelected, dataType } = node.properties
+    const { dataCollapsed, dataDescription, dataIcon, dataName, dataSelected, dataType } = node.properties
+
     const name = String(dataName ?? '')
 
     if (!name.trim()) {
@@ -52,6 +54,8 @@ export function processEntries(html: string, instance: number): Entries {
         `Set a non-empty \`name\` prop on the \`${component}\` component ${parent ? `inside \`${getEntryPath(parent)}\`` : 'at the root of the `<FileExplorer>` component'}.`,
       )
     }
+
+    const icon = dataIcon ? (String(dataIcon) as StarlightIcon) : undefined
 
     const entry: Entry = {
       content: '',
@@ -64,9 +68,11 @@ export function processEntries(html: string, instance: number): Entries {
             type: 'folder',
             children: [],
             collapsed: dataCollapsed !== undefined,
+            icon: icon ?? 'seti:folder',
           }
         : {
             type: 'file',
+            icon: icon ?? 'seti:default',
           }),
     }
 
@@ -133,6 +139,7 @@ interface Entries {
 interface BaseEntry {
   content: string
   description: string | undefined
+  icon: StarlightIcon
   id: string
   name: string
   parent: FolderEntry | undefined
@@ -153,6 +160,7 @@ export type Entry = FileEntry | FolderEntry
 // TODO(HiDeoo) JSDoc
 export interface EntryProps {
   description?: string
+  icon?: StarlightIcon
   name: string
   selected?: boolean
 }
