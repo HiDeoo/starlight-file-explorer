@@ -29,7 +29,7 @@ export function processEntries(html: string, instance: number): Entries {
       if (parentEntry?.type === 'file') {
         throw new AstroError(
           'The `<File>` component expects no nested entries.',
-          `Found nested entries inside \`${getEntryPath(parentEntry)}\`. Only \`<Folder>\` components can contain other entries.`,
+          `Move entries nested inside \`${getEntryPath(parentEntry)}\` out of it, or use a \`<Folder>\` component instead.`,
         )
       }
 
@@ -84,8 +84,15 @@ export function processEntries(html: string, instance: number): Entries {
   // Pick the unique selected entry, falling back to the first file or the first folder.
   const selected = selectedEntries[0] ?? list.find((entry) => entry.type === 'file') ?? list[0]
 
+  if (!selected) {
+    throw new AstroError(
+      'The `<FileExplorer>` component expects at least one entry.',
+      'Add at least one `<File>` or `<Folder>` component inside the `<FileExplorer>` component.',
+    )
+  }
+
   // Expand all parent folders of the selected entry.
-  for (let entry = selected?.parent; entry; entry = entry.parent) {
+  for (let entry = selected.parent; entry; entry = entry.parent) {
     entry.collapsed = false
   }
 
@@ -97,7 +104,7 @@ function assertSingleSelectedEntry(entries: Entry[]) {
 
   throw new AstroError(
     'The `<FileExplorer>` component expects only one entry to be selected.',
-    `Found multiple selected entries:\n\n${entries.map((entry) => `- \`${getEntryPath(entry)}\``).join('\n')}`,
+    `Remove the \`selected\` prop from all but one of the following entries:\n\n${entries.map((entry) => `- \`${getEntryPath(entry)}\``).join('\n')}`,
   )
 }
 
@@ -109,7 +116,7 @@ function getEntryPath(entry: Entry) {
 
 interface Entries {
   list: Entry[]
-  selected: Entry | undefined
+  selected: Entry
   tree: Entry[]
 }
 

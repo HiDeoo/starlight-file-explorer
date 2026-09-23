@@ -17,7 +17,7 @@ const { list, selected, tree } = processEntries(html, instance)
 
 <starlight-file-explorer>
   <ul role="tree" aria-label="TODO(HiDeoo)" class="sfe-tree not-content">
-    <Tree entries={tree} selected={selected?.id} />
+    <Tree entries={tree} selected={selected.id} />
   </ul>
   <div>
     {list.map((entry) => (

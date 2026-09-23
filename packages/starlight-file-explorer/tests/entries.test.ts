@@ -59,7 +59,7 @@ test.for([
     expected: 'folder-1',
   },
 ])('selects $description', ({ expected, html }) => {
-  expect(processEntries(html, 0).selected?.name).toBe(expected)
+  expect(processEntries(html, 0).selected.name).toBe(expected)
 })
 
 test('throws with multiple selected entries', () => {
@@ -76,7 +76,7 @@ test('throws with multiple selected entries', () => {
 
     ---
 
-    Found multiple selected entries:
+    Remove the \`selected\` prop from all but one of the following entries:
 
     - \`folder-1/\`
     - \`folder-1/file-2\`
@@ -91,7 +91,17 @@ test('throws with entries nested in a file', () => {
 
     ---
 
-    Found nested entries inside \`folder-1/file-2\`. Only \`<Folder>\` components can contain other entries.
+    Move entries nested inside \`folder-1/file-2\` out of it, or use a \`<Folder>\` component instead.
+  `)
+})
+
+test('throws with no entries', () => {
+  expect(() => processEntries('<p>Content</p>', 0)).toThrowErrorMatchingInlineSnapshot(`
+    The \`<FileExplorer>\` component expects at least one entry.
+
+    ---
+
+    Add at least one \`<File>\` or \`<Folder>\` component inside the \`<FileExplorer>\` component.
   `)
 })
 
