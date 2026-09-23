@@ -1,8 +1,23 @@
 ---
 import type { APIContext } from 'astro'
+import { AstroError } from 'astro/errors'
 
 import Tree from '../components/Tree.astro'
 import { processEntries } from '../libs/entries'
+
+// TODO(HiDeoo) jsdoc
+interface Props {
+  label: string
+}
+
+const { label } = Astro.props
+
+if (!label?.trim()) {
+  throw new AstroError(
+    'The `<FileExplorer>` component expects a non-empty `label` prop.',
+    'Set a non-empty `label` prop on the `<FileExplorer>` component to describe its file tree to assistive technologies, e.g. `<FileExplorer label="Project files">`.',
+  )
+}
 
 const instanceSymbol = Symbol.for('starlight-file-explorer:instance')
 
@@ -16,7 +31,7 @@ const { list, selected, tree } = processEntries(html, instance)
 ---
 
 <starlight-file-explorer>
-  <ul role="tree" aria-label="TODO(HiDeoo)" class="sfe-tree not-content">
+  <ul role="tree" aria-label={label} class="sfe-tree not-content">
     <Tree entries={tree} selected={selected.id} />
   </ul>
   <div>
