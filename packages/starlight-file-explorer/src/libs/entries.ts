@@ -10,19 +10,20 @@ export function processEntries(html: string, instance: number): Entries {
 
   let count = 0
   const list: Entry[] = []
+  const selectedEntries: Entry[] = []
 
-  function extractEntries(parent: Root | Element): Entry[] {
+  function extractEntries(parent: Root | Element, parentEntry?: FolderEntry): Entry[] {
     const entries: Entry[] = []
 
     parent.children = parent.children.filter((child) => {
       if (child.type !== 'element') return true
 
       if (child.tagName !== EntryTagName) {
-        entries.push(...extractEntries(child))
+        entries.push(...extractEntries(child, parentEntry))
         return true
       }
 
-      entries.push(getEntryFromNode(child))
+      entries.push(getEntryFromNode(child, parentEntry))
 
       return false
     })
@@ -30,39 +31,81 @@ export function processEntries(html: string, instance: number): Entries {
     return entries
   }
 
-  function getEntryFromNode(node: Element): Entry {
-    const { dataName, dataType } = node.properties
-
-    const children = extractEntries(node)
+  function getEntryFromNode(node: Element, parent?: FolderEntry): Entry {
+    const { dataCollapsed, dataName, dataSelected, dataType } = node.properties
 
     const entry: Entry = {
-      children,
-      content: toHtml(node.children),
+      content: '',
       id: `sfe-${instance}-${count++}`,
       name: String(dataName),
-      type: dataType === 'folder' ? 'folder' : 'file',
+      parent,
+      ...(dataType === 'folder'
+        ? {
+            type: 'folder',
+            children: [],
+            collapsed: dataCollapsed !== undefined,
+          }
+        : {
+            type: 'file',
+          }),
     }
 
     list.push(entry)
 
+    if (dataSelected !== undefined) {
+      selectedEntries.push(entry)
+    }
+
+    if (entry.type === 'folder') {
+      entry.children = extractEntries(node, entry)
+    }
+
+    entry.content = toHtml(node.children)
+
     return entry
   }
 
-  return {
-    list,
-    tree: extractEntries(tree),
+  const entries = extractEntries(tree)
+  assertSingleSelectedEntry(selectedEntries)
+
+  // Pick the unique selected entry, falling back to the first file or the first folder.
+  const selected = selectedEntries[0] ?? list.find((entry) => entry.type === 'file') ?? list[0]
+
+  // Expand all parent folders of the selected entry.
+  for (let entry = selected?.parent; entry; entry = entry.parent) {
+    entry.collapsed = false
   }
+
+  return { list, selected, tree: entries }
+}
+
+function assertSingleSelectedEntry(entries: Entry[]) {
+  if (entries.length <= 1) return
+
+  throw new Error('// TODO(HiDeoo) multiple selected')
 }
 
 interface Entries {
   list: Entry[]
+  selected: Entry | undefined
   tree: Entry[]
 }
 
-export interface Entry {
-  children: Entry[]
+interface BaseEntry {
   content: string
   id: string
   name: string
-  type: 'file' | 'folder'
+  parent: FolderEntry | undefined
 }
+
+interface FileEntry extends BaseEntry {
+  type: 'file'
+}
+
+interface FolderEntry extends BaseEntry {
+  type: 'folder'
+  children: Entry[]
+  collapsed: boolean
+}
+
+export type Entry = FileEntry | FolderEntry

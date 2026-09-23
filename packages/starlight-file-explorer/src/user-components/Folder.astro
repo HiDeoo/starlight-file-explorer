@@ -1,14 +1,23 @@
 ---
 import { EntryTagName } from '../libs/entries'
 
+// TODO(HiDeoo) JSDoc
+// TODO(HiDeoo) shared with file
 interface Props {
+  collapsed?: boolean
   // TODO(HiDeoo) validation
   name: string
+  selected?: boolean
 }
 
-const { name } = Astro.props
+const { collapsed, name, selected } = Astro.props
 ---
 
-<EntryTagName data-type="folder" data-name={name}>
+<EntryTagName
+  data-type="folder"
+  data-collapsed={collapsed || undefined}
+  data-name={name}
+  data-selected={selected || undefined}
+>
   <slot />
 </EntryTagName>

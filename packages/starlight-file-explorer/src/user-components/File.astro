@@ -1,14 +1,19 @@
 ---
 import { EntryTagName } from '../libs/entries'
 
+// TODO(HiDeoo) file nested in a file?
+
+// TODO(HiDeoo) JSDoc
+// TODO(HiDeoo) shared with folder
 interface Props {
   // TODO(HiDeoo) validation
   name: string
+  selected?: boolean
 }
 
-const { name } = Astro.props
+const { name, selected } = Astro.props
 ---
 
-<EntryTagName data-type="file" data-name={name}>
+<EntryTagName data-type="file" data-name={name} data-selected={selected || undefined}>
   <slot />
 </EntryTagName>

@@ -12,10 +12,7 @@ locals[instanceSymbol] ??= 0
 const instance = locals[instanceSymbol]++
 
 const html = await Astro.slots.render('default')
-const { list, tree } = processEntries(html, instance)
-
-// TODO(HiDeoo)
-const selected = list[0]
+const { list, selected, tree } = processEntries(html, instance)
 ---
 
 <starlight-file-explorer>
@@ -67,6 +64,7 @@ const selected = list[0]
         this.addEventListener('keydown', this.#handleKeydown)
       }
 
+      // TODO(HiDeoo) Check clicking on empty space
       #handleClick = (event: MouseEvent) => {
         if (!(event.target instanceof Element)) return
 
@@ -89,7 +87,7 @@ const selected = list[0]
         if (!item) return
 
         this.#walker.currentNode = item
-        const isExpanded = item.getAttribute('aria-expanded')
+        const isExpanded = item.getAttribute('aria-expanded') === 'true'
 
         switch (event.key) {
           case 'ArrowDown':
@@ -99,11 +97,11 @@ const selected = list[0]
             this.#setSelected(this.#walker.previousNode())
             break
           case 'ArrowRight':
-            if (isExpanded === 'true') this.#setSelected(this.#walker.nextNode())
+            if (isExpanded) this.#setSelected(this.#walker.nextNode())
             else this.#setExpanded(item, true)
             break
           case 'ArrowLeft':
-            if (isExpanded === 'true') this.#setExpanded(item, false)
+            if (isExpanded) this.#setExpanded(item, false)
             else this.#setSelected(this.#walker.parentNode())
             break
           case 'Home':
@@ -117,7 +115,7 @@ const selected = list[0]
           }
           case 'Enter':
           case ' ': {
-            this.#setExpanded(item, isExpanded !== 'true')
+            this.#setExpanded(item, !isExpanded)
             break
           }
           default: {

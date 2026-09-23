@@ -18,8 +18,8 @@ const { entries, selected } = Astro.props
 
   return (
     <li
-      aria-expanded={isFolderWithEntries ? 'true' : undefined}
-      aria-selected={isSelected ? 'true' : 'false'}
+      aria-expanded={isFolderWithEntries ? !entry.collapsed : undefined}
+      aria-selected={isSelected}
       class="sfe-tree-item"
       data-panel={entry.id}
       role="treeitem"
