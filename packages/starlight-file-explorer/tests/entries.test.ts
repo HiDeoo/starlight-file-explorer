@@ -72,15 +72,26 @@ test('throws with multiple selected entries', () => {
       0,
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    Multiple entries are selected in a \`<FileExplorer>\` component.
+    The \`<FileExplorer>\` component expects only one entry to be selected.
 
     ---
 
-    Only one entry can use the \`selected\` prop. The following entries are currently selected:
+    Found multiple selected entries:
 
-    - folder-1/
-    - folder-1/file-2
-    - file-1
+    - \`folder-1/\`
+    - \`folder-1/file-2\`
+    - \`file-1\`
+  `)
+})
+
+test('throws with entries nested in a file', () => {
+  expect(() => processEntries(folder('folder-1', {}, file('file-2', {}, `<div>${file('file-3')}</div>`)), 0))
+    .toThrowErrorMatchingInlineSnapshot(`
+    The \`<File>\` component expects no nested entries.
+
+    ---
+
+    Found nested entries inside \`folder-1/file-2\`. Only \`<Folder>\` components can contain other entries.
   `)
 })
 

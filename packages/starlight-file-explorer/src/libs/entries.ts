@@ -7,13 +7,15 @@ export const EntryTagName = 'starlight-file-explorer-entry'
 
 export function processEntries(html: string, instance: number): Entries {
   const tree = htmlToHast(html, { fragment: true })
-  if (tree.type !== 'root') throw new Error('// TODO(HiDeoo)')
+  if (tree.type !== 'root') {
+    throw new Error(`Expected \`htmlToHast()\` to return a root node but received \`${tree.type}\`.`)
+  }
 
   let count = 0
   const list: Entry[] = []
   const selectedEntries: Entry[] = []
 
-  function extractEntries(parent: Root | Element, parentEntry?: FolderEntry): Entry[] {
+  function extractEntries(parent: Root | Element, parentEntry?: Entry): Entry[] {
     const entries: Entry[] = []
 
     parent.children = parent.children.filter((child) => {
@@ -22,6 +24,13 @@ export function processEntries(html: string, instance: number): Entries {
       if (child.tagName !== EntryTagName) {
         entries.push(...extractEntries(child, parentEntry))
         return true
+      }
+
+      if (parentEntry?.type === 'file') {
+        throw new AstroError(
+          'The `<File>` component expects no nested entries.',
+          `Found nested entries inside \`${getEntryPath(parentEntry)}\`. Only \`<Folder>\` components can contain other entries.`,
+        )
       }
 
       entries.push(getEntryFromNode(child, parentEntry))
@@ -57,8 +66,11 @@ export function processEntries(html: string, instance: number): Entries {
       selectedEntries.push(entry)
     }
 
+    // We walk over files too, to report entries nested inside them.
+    const children = extractEntries(node, entry)
+
     if (entry.type === 'folder') {
-      entry.children = extractEntries(node, entry)
+      entry.children = children
     }
 
     entry.content = toHtml(node.children)
@@ -84,8 +96,8 @@ function assertSingleSelectedEntry(entries: Entry[]) {
   if (entries.length <= 1) return
 
   throw new AstroError(
-    'Multiple entries are selected in a `<FileExplorer>` component.',
-    `Only one entry can use the \`selected\` prop. The following entries are currently selected:\n\n${entries.map((entry) => `- ${getEntryPath(entry)}`).join('\n')}`,
+    'The `<FileExplorer>` component expects only one entry to be selected.',
+    `Found multiple selected entries:\n\n${entries.map((entry) => `- \`${getEntryPath(entry)}\``).join('\n')}`,
   )
 }
 
