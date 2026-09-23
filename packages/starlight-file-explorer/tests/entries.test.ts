@@ -27,6 +27,12 @@ test('extracts nested entries', () => {
   expect(list.map((entry) => entry.content)).toEqual(['<p>Folder 1</p>', '<p>File 2</p>'])
 })
 
+test('extracts descriptions', () => {
+  const { list } = processEntries(root(file('file-1', { description: 'Description 1' }), file('file-2')), 0)
+
+  expect(list.map((entry) => entry.description)).toEqual(['Description 1', undefined])
+})
+
 test('lists all entries with unique IDs', () => {
   const { list } = processEntries(root(folder('folder-1', {}, file('file-2')), file('file-1')), 3)
 
@@ -159,14 +165,21 @@ function folder(name: string, options: EntryOptions = {}, ...content: string[]) 
   return makeEntry('folder', name, options, content.join(''))
 }
 
-function makeEntry(type: Entry['type'], name: string, { collapsed, selected }: EntryOptions, content: string) {
+function makeEntry(
+  type: Entry['type'],
+  name: string,
+  { collapsed, description, selected }: EntryOptions,
+  content: string,
+) {
   const attributes = [`data-type="${type}"`, `data-name="${name}"`]
   if (collapsed) attributes.push('data-collapsed="true"')
+  if (description) attributes.push(`data-description="${description}"`)
   if (selected) attributes.push('data-selected="true"')
   return `<${EntryTagName} ${attributes.join(' ')}>${content}</${EntryTagName}>`
 }
 
 interface EntryOptions {
   collapsed?: boolean
+  description?: string
   selected?: boolean
 }

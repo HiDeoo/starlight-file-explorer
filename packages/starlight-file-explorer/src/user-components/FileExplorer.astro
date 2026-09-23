@@ -22,7 +22,10 @@ const { list, selected, tree } = processEntries(html, instance)
   <div>
     {list.map((entry) => (
       <div hidden={entry !== selected} id={entry.id}>
-        <div class="panel-header not-content">{entry.name}</div>
+        <div class="panel-header not-content">
+          {entry.name}
+          {entry.description && <p>{entry.description}</p>}
+        </div>
         <Fragment set:html={entry.content} />
       </div>
     ))}

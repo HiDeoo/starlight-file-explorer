@@ -42,7 +42,7 @@ export function processEntries(html: string, instance: number): Entries {
   }
 
   function getEntryFromNode(node: Element, parent?: FolderEntry): Entry {
-    const { dataCollapsed, dataName, dataSelected, dataType } = node.properties
+    const { dataCollapsed, dataDescription, dataName, dataSelected, dataType } = node.properties
     const name = String(dataName ?? '')
 
     if (!name.trim()) {
@@ -55,6 +55,7 @@ export function processEntries(html: string, instance: number): Entries {
 
     const entry: Entry = {
       content: '',
+      description: dataDescription ? String(dataDescription) : undefined,
       id: `sfe-${instance}-${count++}`,
       name,
       parent,
@@ -131,6 +132,7 @@ interface Entries {
 
 interface BaseEntry {
   content: string
+  description: string | undefined
   id: string
   name: string
   parent: FolderEntry | undefined
@@ -150,6 +152,7 @@ export type Entry = FileEntry | FolderEntry
 
 // TODO(HiDeoo) JSDoc
 export interface EntryProps {
+  description?: string
   name: string
   selected?: boolean
 }
