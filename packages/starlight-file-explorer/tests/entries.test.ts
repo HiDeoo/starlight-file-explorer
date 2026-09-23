@@ -36,18 +36,20 @@ test('extracts descriptions', () => {
 test('resolves icons', () => {
   const { list } = processEntries(
     root(
-      folder('folder-1', {}, file('file-2')),
-      folder('folder-2', { icon: 'star' }),
-      file('file-1', { icon: 'rocket' }),
+      folder('folder-1a', {}, file('file-2')),
+      folder('folder-1b', { icon: 'star' }),
+      file('file-1a.ts', { icon: 'rocket' }),
+      file('file-1b.ts'),
     ),
     0,
   )
 
   expect(list.map((entry) => [entry.name, entry.icon])).toEqual([
-    ['folder-1', 'seti:folder'],
+    ['folder-1a', 'seti:folder'],
     ['file-2', 'seti:default'],
-    ['folder-2', 'star'],
-    ['file-1', 'rocket'],
+    ['folder-1b', 'star'],
+    ['file-1a.ts', 'rocket'],
+    ['file-1b.ts', 'seti:typescript'],
   ])
 })
 

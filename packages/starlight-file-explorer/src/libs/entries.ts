@@ -4,6 +4,8 @@ import type { Element, Root } from 'hast'
 import { toHtml } from 'hast-util-to-html'
 import { htmlToHast } from 'satteri'
 
+import { getFileIconName } from '../vendor/starlight'
+
 export const EntryTagName = 'starlight-file-explorer-entry'
 
 export function processEntries(html: string, instance: number): Entries {
@@ -72,7 +74,7 @@ export function processEntries(html: string, instance: number): Entries {
           }
         : {
             type: 'file',
-            icon: icon ?? 'seti:default',
+            icon: icon ?? getFileIconName(name) ?? 'seti:default',
           }),
     }
 
