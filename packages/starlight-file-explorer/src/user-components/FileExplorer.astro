@@ -31,29 +31,53 @@ const { list, selected, tree } = processEntries(html, instance)
 ---
 
 <starlight-file-explorer>
-  <ul role="tree" aria-label={label} class="sfe-tree not-content">
-    <Tree entries={tree} selected={selected.id} />
-  </ul>
-  <div>
-    {list.map((entry) => (
-      <div hidden={entry !== selected} id={entry.id}>
-        <div class="panel-header not-content">
-          {entry.name}
-          {entry.description && <p>{entry.description}</p>}
+  <div class="sfe-explorer">
+    <ul role="tree" aria-label={label} class="sfe-tree not-content">
+      <Tree entries={tree} selected={selected.id} />
+    </ul>
+    <div class="sfe-panels">
+      {list.map((entry) => (
+        <div class="sfe-panel" hidden={entry !== selected} id={entry.id}>
+          <div class="not-content">
+            {entry.name}
+            {entry.description && <p>{entry.description}</p>}
+          </div>
+          <Fragment set:html={entry.content} />
         </div>
-        <Fragment set:html={entry.content} />
-      </div>
-    ))}
+      ))}
+    </div>
   </div>
 </starlight-file-explorer>
 
 <style>
+  starlight-file-explorer {
+    container-type: inline-size;
+    display: block;
+  }
+
+  .sfe-explorer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .sfe-tree {
     border: 1px solid red;
     font-family: var(--__sl-font-mono);
     font-size: var(--sl-text-xs);
     list-style: none;
     padding: 0;
+  }
+
+  .sfe-panels,
+  .sfe-panel {
+    border: 1px solid blue;
+    margin-top: 0;
+  }
+
+  @container (min-width: 36rem) {
+    .sfe-explorer {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
   }
 </style>
 
@@ -130,7 +154,7 @@ const { list, selected, tree } = processEntries(html, instance)
             this.#setSelected(this.#walker.firstChild())
             break
           case 'End': {
-            this.#walker.currentNode = this.lastElementChild ?? this
+            this.#walker.currentNode = this.querySelector('.sfe-panels') ?? this
             this.#setSelected(this.#walker.previousNode())
             break
           }
