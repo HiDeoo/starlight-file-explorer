@@ -65,6 +65,7 @@ const { list, selected, tree } = processEntries(html, instance)
     font-family: var(--__sl-font-mono);
     font-size: var(--sl-text-xs);
     list-style: none;
+    overflow-x: clip;
     padding: 0;
   }
 
@@ -77,6 +78,10 @@ const { list, selected, tree } = processEntries(html, instance)
   @container (min-width: 36rem) {
     .sfe-explorer {
       grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .sfe-tree {
+      inline-size: min(32ch, 40cqi);
     }
   }
 </style>

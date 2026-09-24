@@ -70,6 +70,7 @@ const { depth = 0, entries, selected } = Astro.props
 
       & > .sfe-tree-row {
         outline: auto;
+        outline-offset: var(--sl-outline-offset-inside);
       }
     }
   }
@@ -78,7 +79,7 @@ const { depth = 0, entries, selected } = Astro.props
     align-items: center;
     column-gap: var(--sfe-tree-gap);
     display: grid;
-    grid-template-columns: [toggle] var(--sfe-tree-toggle-size) [icon] auto [label] 1fr;
+    grid-template-columns: [toggle] var(--sfe-tree-toggle-size) [icon] auto [label] minmax(0, 1fr);
     padding-block: var(--sfe-tree-row-padding-block);
     padding-inline: var(--sfe-tree-row-padding-inline);
     padding-inline-start: calc(
@@ -104,5 +105,8 @@ const { depth = 0, entries, selected } = Astro.props
 
   .sfe-tree-label {
     grid-column: label;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 </style>
