@@ -34,7 +34,9 @@ const { depth = 0, entries, selected } = Astro.props
         )}
         {isFolder && <span class="sr-only">{Astro.locals.t('fileTree.directory')}</span>}
         <Icon name={entry.icon} class="sfe-tree-icon" size="0.875rem" />
-        <span class="sfe-tree-label">{entry.name}</span>
+        <span class="sfe-tree-label">
+          <bdi>{entry.name}</bdi>
+        </span>
       </div>
       {isFolderWithEntries && (
         <ul role="group">

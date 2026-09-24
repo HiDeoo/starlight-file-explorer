@@ -117,6 +117,12 @@ export function processEntries(html: string, instance: number): Entries {
   return { list, selected, tree: entries }
 }
 
+export function getEntryPath(entry: Entry) {
+  let path = entry.type === 'folder' ? `${entry.name}/` : entry.name
+  for (let parent = entry.parent; parent; parent = parent.parent) path = `${parent.name}/${path}`
+  return path
+}
+
 function assertSingleSelectedEntry(entries: Entry[]) {
   if (entries.length <= 1) return
 
@@ -124,12 +130,6 @@ function assertSingleSelectedEntry(entries: Entry[]) {
     'The `<FileExplorer>` component expects only one entry to be selected.',
     `Remove the \`selected\` prop from all but one of the following entries:\n\n${entries.map((entry) => `- \`${getEntryPath(entry)}\``).join('\n')}`,
   )
-}
-
-function getEntryPath(entry: Entry) {
-  let path = entry.type === 'folder' ? `${entry.name}/` : entry.name
-  for (let parent = entry.parent; parent; parent = parent.parent) path = `${parent.name}/${path}`
-  return path
 }
 
 interface Entries {
