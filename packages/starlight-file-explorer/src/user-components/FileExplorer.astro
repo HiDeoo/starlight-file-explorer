@@ -50,6 +50,10 @@ const { list, selected, tree } = processEntries(html, instance)
 <style>
   .sfe-tree {
     border: 1px solid red;
+    font-family: var(--__sl-font-mono);
+    font-size: var(--sl-text-xs);
+    list-style: none;
+    padding: 0;
   }
 </style>
 
@@ -82,7 +86,6 @@ const { list, selected, tree } = processEntries(html, instance)
         this.addEventListener('keydown', this.#handleKeydown)
       }
 
-      // TODO(HiDeoo) Check clicking on empty space
       #handleClick = (event: MouseEvent) => {
         if (!(event.target instanceof Element)) return
 
@@ -91,7 +94,7 @@ const { list, selected, tree } = processEntries(html, instance)
 
         if (event.target.closest('.sfe-tree-toggle')) {
           this.#setExpanded(item, item.getAttribute('aria-expanded') !== 'true')
-        } else if (event.target.closest('.sfe-tree-label')) {
+        } else if (event.target.closest('.sfe-tree-row')) {
           this.#setSelected(item)
           this.#setExpanded(item, true)
         }
