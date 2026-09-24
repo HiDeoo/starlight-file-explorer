@@ -33,7 +33,7 @@ const { depth = 0, entries, selected } = Astro.props
           </svg>
         )}
         {isFolder && <span class="sr-only">{Astro.locals.t('fileTree.directory')}</span>}
-        <Icon name={entry.icon} class="sfe-tree-icon" size="0.875rem" />
+        <Icon name={entry.icon} class:list={['sfe-tree-icon', isFolder && 'sfe-tree-icon-folder']} size="0.875rem" />
         <span class="sfe-tree-label">
           <bdi>{entry.name}</bdi>
         </span>
@@ -53,6 +53,7 @@ const { depth = 0, entries, selected } = Astro.props
     --sfe-tree-row-padding-block: 0.25rem;
     --sfe-tree-row-padding-inline: 0.5rem;
     --sfe-tree-toggle-size: 1em;
+    --sfe-tree-toggle-column: calc(var(--sfe-tree-toggle-size) + 0.125rem);
 
     & > [role='group'] {
       list-style: none;
@@ -64,14 +65,24 @@ const { depth = 0, entries, selected } = Astro.props
     }
 
     &[aria-selected='true'] > .sfe-tree-row {
-      border: 1px solid green;
+      background-color: var(--sl-color-text-accent);
+      color: var(--sl-color-text-invert);
+      font-weight: 600;
+    }
+
+    &[aria-selected='true'] > .sfe-tree-row :is(.sfe-tree-icon, .sfe-tree-toggle) {
+      color: inherit;
+    }
+
+    &[aria-selected='true'] > .sfe-tree-row .sfe-tree-toggle:hover {
+      background-color: color-mix(in hsl, currentColor 25%, transparent);
     }
 
     &:focus-visible {
       outline: none;
 
       & > .sfe-tree-row {
-        outline: auto;
+        outline: 2px solid var(--sl-color-text-invert);
         outline-offset: var(--sl-outline-offset-inside);
       }
     }
@@ -80,29 +91,45 @@ const { depth = 0, entries, selected } = Astro.props
   .sfe-tree-row {
     align-items: center;
     column-gap: var(--sfe-tree-gap);
+    cursor: pointer;
     display: grid;
-    grid-template-columns: [toggle] var(--sfe-tree-toggle-size) [icon] auto [label] minmax(0, 1fr);
+    grid-template-columns: [toggle] var(--sfe-tree-toggle-column) [icon] auto [label] minmax(0, 1fr);
     padding-block: var(--sfe-tree-row-padding-block);
     padding-inline: var(--sfe-tree-row-padding-inline);
     padding-inline-start: calc(
-      var(--sfe-tree-row-padding-inline) + var(--sfe-tree-depth) * (var(--sfe-tree-toggle-size) + var(--sfe-tree-gap))
+      var(--sfe-tree-row-padding-inline) + var(--sfe-tree-depth) * (var(--sfe-tree-toggle-column) + var(--sfe-tree-gap))
     );
+
+    &:hover {
+      background-color: color-mix(in hsl, var(--sl-color-text-accent) 10%, transparent);
+    }
   }
 
   .sfe-tree-toggle {
     --sfe-tree-toggle-padding: calc((1.5rem - var(--sfe-tree-toggle-size)) / 2);
 
+    border-radius: 0.25rem;
     box-sizing: content-box;
-    cursor: pointer;
+    color: var(--sl-color-gray-3);
     grid-column: toggle;
     height: var(--sfe-tree-toggle-size);
     margin: calc(-1 * var(--sfe-tree-toggle-padding));
     padding: var(--sfe-tree-toggle-padding);
     width: var(--sfe-tree-toggle-size);
+
+    &:hover {
+      background-color: color-mix(in hsl, currentColor 10%, transparent);
+      color: var(--sl-color-white);
+    }
   }
 
   .sfe-tree-icon {
+    color: var(--sl-color-gray-3);
     grid-column: icon;
+  }
+
+  .sfe-tree-icon-folder {
+    translate: 0 -0.05em;
   }
 
   .sfe-tree-label {
