@@ -9,10 +9,11 @@ import { getEntryPath, processEntries } from '../libs/entries'
 
 // TODO(HiDeoo) jsdoc
 interface Props {
+  base?: string
   label: string
 }
 
-const { label } = Astro.props
+const { base, label } = Astro.props
 
 if (!label?.trim()) {
   throw new AstroError(
@@ -35,6 +36,9 @@ locals[didRenderRestoreScriptSymbol] = true
 
 const html = await Astro.slots.render('default')
 const { list, selected, tree } = processEntries(html, pathCounts)
+
+const normalizedBase = base?.trim()
+const pathPrefix = normalizedBase ? `${normalizedBase.replace(/\/+$/, '')}/` : ''
 ---
 
 {shouldRenderRestoreScript && <RestoreScript />}
@@ -50,23 +54,25 @@ const { list, selected, tree } = processEntries(html, pathCounts)
           <div class="sfe-panel-header not-content">
             <div class="sfe-panel-path">
               <bdi>
-                {getEntryPath(entry)
-                  .split('/')
-                  .map((segment, index) => (
-                    <>
-                      {index > 0 && (
-                        <>
-                          <span
-                            class:list={['sfe-panel-path-separator', !segment && 'sfe-panel-path-separator-trailing']}
-                          >
-                            /
-                          </span>
-                          {segment && <wbr />}
-                        </>
-                      )}
-                      {segment}
-                    </>
-                  ))}
+                {`${pathPrefix}${getEntryPath(entry)}`.split('/').map((segment, index, segments) => (
+                  <>
+                    {index > 0 && (
+                      <>
+                        <span
+                          class:list={[
+                            'sfe-panel-path-separator',
+                            segments[index - 1] === '' && 'sfe-panel-path-separator-leading',
+                            !segment && 'sfe-panel-path-separator-trailing',
+                          ]}
+                        >
+                          /
+                        </span>
+                        {segment && <wbr />}
+                      </>
+                    )}
+                    {segment}
+                  </>
+                ))}
               </bdi>
             </div>
             <div class="sfe-panel-title">
@@ -152,6 +158,10 @@ const { list, selected, tree } = processEntries(html, pathCounts)
   .sfe-panel-path-separator {
     color: var(--sl-color-gray-4);
     margin-inline: 0.5ch;
+
+    &.sfe-panel-path-separator-leading {
+      margin-inline-start: 0;
+    }
 
     &.sfe-panel-path-separator-trailing {
       color: inherit;
