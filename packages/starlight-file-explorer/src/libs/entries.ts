@@ -140,22 +140,17 @@ export function getEntryPath(entry: Entry) {
 }
 
 function assertUniquePaths(entries: Entry[]) {
-  const paths = new Map<string, Entry>()
+  // We don't use `getEntryPath()` on the entry as its trailing slash on folders would prevent detecting a folder and
+  // a file having the same name in the same parent.
+  const paths = Map.groupBy(entries, (entry) => `${entry.parent ? getEntryPath(entry.parent) : ''}${entry.name}`)
 
-  for (const entry of entries) {
-    // We don't use `getEntryPath()` on the entry as its trailing slash on folders would prevent detecting a folder and
-    // a file having the same name in the same parent.
-    const path = `${entry.parent ? getEntryPath(entry.parent) : ''}${entry.name}`
-    const duplicate = paths.get(path)
+  for (const duplicates of paths.values()) {
+    if (duplicates.length <= 1) continue
 
-    if (duplicate) {
-      throw new AstroError(
-        'The `<FileExplorer>` component expects unique names in each folder.',
-        `Rename or remove one of the following entries:\n\n- \`${getEntryPath(duplicate)}\`\n- \`${getEntryPath(entry)}\``,
-      )
-    }
-
-    paths.set(path, entry)
+    throw new AstroError(
+      'The `<FileExplorer>` component expects unique names in each folder.',
+      `Rename or remove all but one of the following entries:\n\n${duplicates.map((entry) => `- \`${getEntryPath(entry)}\``).join('\n')}`,
+    )
   }
 }
 

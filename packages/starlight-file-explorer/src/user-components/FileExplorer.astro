@@ -35,8 +35,6 @@ locals[didRenderRestoreScriptSymbol] = true
 
 const html = await Astro.slots.render('default')
 const { list, selected, tree } = processEntries(html, pathCounts)
-
-// TODO(HiDeoo) duplicate file names doesn't list everything?
 ---
 
 {shouldRenderRestoreScript && <RestoreScript />}

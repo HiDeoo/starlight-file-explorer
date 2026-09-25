@@ -179,7 +179,7 @@ test('throws when a file and a folder share the same path', () => {
 
     ---
 
-    Rename or remove one of the following entries:
+    Rename or remove all but one of the following entries:
 
     - \`entry-1\`
     - \`entry-1/\`
@@ -187,14 +187,15 @@ test('throws when a file and a folder share the same path', () => {
 })
 
 test('throws when entries share the same path', () => {
-  expect(() => processTestEntries(folder('folder-1', {}, file('file-2'), file('file-2'))))
+  expect(() => processTestEntries(folder('folder-1', {}, file('file-2'), file('file-2'), file('file-2'))))
     .toThrowErrorMatchingInlineSnapshot(`
     The \`<FileExplorer>\` component expects unique names in each folder.
 
     ---
 
-    Rename or remove one of the following entries:
+    Rename or remove all but one of the following entries:
 
+    - \`folder-1/file-2\`
     - \`folder-1/file-2\`
     - \`folder-1/file-2\`
   `)
