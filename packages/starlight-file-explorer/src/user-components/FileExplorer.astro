@@ -29,8 +29,6 @@ const instance = locals[instanceSymbol]++
 
 const html = await Astro.slots.render('default')
 const { list, selected, tree } = processEntries(html, instance)
-
-// TODO(HiDeoo) identical names in same folder?
 ---
 
 <starlight-file-explorer>

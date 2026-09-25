@@ -106,6 +106,7 @@ export function processEntries(html: string, instance: number): Entries {
   }
 
   const entries = extractEntries(tree)
+  assertUniquePaths(list)
   assertSingleSelectedEntry(selectedEntries)
 
   // Pick the unique selected entry, falling back to the first file or the first folder.
@@ -130,6 +131,26 @@ export function getEntryPath(entry: Entry) {
   let path = entry.type === 'folder' ? `${entry.name}/` : entry.name
   for (let parent = entry.parent; parent; parent = parent.parent) path = `${parent.name}/${path}`
   return path
+}
+
+function assertUniquePaths(entries: Entry[]) {
+  const paths = new Map<string, Entry>()
+
+  for (const entry of entries) {
+    // We don't use `getEntryPath()` on the entry as its trailing slash on folders would prevent detecting a folder and
+    // a file having the same name in the same parent.
+    const path = `${entry.parent ? getEntryPath(entry.parent) : ''}${entry.name}`
+    const duplicate = paths.get(path)
+
+    if (duplicate) {
+      throw new AstroError(
+        'The `<FileExplorer>` component expects unique names in each folder.',
+        `Rename or remove one of the following entries:\n\n- \`${getEntryPath(duplicate)}\`\n- \`${getEntryPath(entry)}\``,
+      )
+    }
+
+    paths.set(path, entry)
+  }
 }
 
 function assertSingleSelectedEntry(entries: Entry[]) {

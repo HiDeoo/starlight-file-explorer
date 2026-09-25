@@ -162,6 +162,33 @@ test('throws with a slash in a name', () => {
   `)
 })
 
+test('throws when a file and a folder share the same path', () => {
+  expect(() => processEntries(root(file('entry-1'), folder('entry-1')), 0)).toThrowErrorMatchingInlineSnapshot(`
+    The \`<FileExplorer>\` component expects unique names in each folder.
+
+    ---
+
+    Rename or remove one of the following entries:
+
+    - \`entry-1\`
+    - \`entry-1/\`
+  `)
+})
+
+test('throws when entries share the same path', () => {
+  expect(() => processEntries(folder('folder-1', {}, file('file-2'), file('file-2')), 0))
+    .toThrowErrorMatchingInlineSnapshot(`
+    The \`<FileExplorer>\` component expects unique names in each folder.
+
+    ---
+
+    Rename or remove one of the following entries:
+
+    - \`folder-1/file-2\`
+    - \`folder-1/file-2\`
+  `)
+})
+
 test('expands collapsed folders containing the selected entry', () => {
   const { list } = processEntries(
     root(
