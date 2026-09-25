@@ -68,14 +68,18 @@ const { depth = 0, entries, selected } = Astro.props
       background-color: var(--sl-color-text-accent);
       color: var(--sl-color-text-invert);
       font-weight: 600;
+
+      & :is(.sfe-tree-icon, .sfe-tree-toggle) {
+        color: inherit;
+      }
+
+      & .sfe-tree-toggle:hover {
+        background-color: color-mix(in hsl, currentColor 25%, transparent);
+      }
     }
 
-    &[aria-selected='true'] > .sfe-tree-row :is(.sfe-tree-icon, .sfe-tree-toggle) {
-      color: inherit;
-    }
-
-    &[aria-selected='true'] > .sfe-tree-row .sfe-tree-toggle:hover {
-      background-color: color-mix(in hsl, currentColor 25%, transparent);
+    &[aria-expanded='true'] > .sfe-tree-row .sfe-tree-toggle path {
+      rotate: 90deg;
     }
 
     &:focus-visible {
@@ -121,6 +125,19 @@ const { depth = 0, entries, selected } = Astro.props
       background-color: color-mix(in hsl, currentColor 10%, transparent);
       color: var(--sl-color-white);
     }
+
+    & path {
+      transform-box: fill-box;
+      transform-origin: center;
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition: rotate 0.2s ease-in-out;
+      }
+    }
+  }
+
+  :global([dir='rtl']) .sfe-tree-toggle path {
+    rotate: 180deg;
   }
 
   .sfe-tree-icon {
