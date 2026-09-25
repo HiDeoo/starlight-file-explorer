@@ -151,6 +151,17 @@ test('throws with an empty name in a folder', () => {
   `)
 })
 
+test('throws with a slash in a name', () => {
+  expect(() => processEntries(folder('folder-1', {}, folder('folder-2/folder-3')), 0))
+    .toThrowErrorMatchingInlineSnapshot(`
+    The \`<Folder>\` component expects a \`name\` prop without slashes.
+
+    ---
+
+    Replace the \`folder-2/folder-3\` name of the \`<Folder>\` component inside \`folder-1/\` with a single path segment, and use \`<Folder>\` components for nesting.
+  `)
+})
+
 test('expands collapsed folders containing the selected entry', () => {
   const { list } = processEntries(
     root(

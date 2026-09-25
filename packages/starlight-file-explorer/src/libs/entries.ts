@@ -49,11 +49,20 @@ export function processEntries(html: string, instance: number): Entries {
 
     const name = String(dataName ?? '')
 
+    const component = dataType === 'folder' ? '<Folder>' : '<File>'
+    const location = parent ? `inside \`${getEntryPath(parent)}\`` : 'at the root of the `<FileExplorer>` component'
+
     if (!name.trim()) {
-      const component = dataType === 'folder' ? '<Folder>' : '<File>'
       throw new AstroError(
         `The \`${component}\` component expects a non-empty \`name\` prop.`,
-        `Set a non-empty \`name\` prop on the \`${component}\` component ${parent ? `inside \`${getEntryPath(parent)}\`` : 'at the root of the `<FileExplorer>` component'}.`,
+        `Set a non-empty \`name\` prop on the \`${component}\` component ${location}.`,
+      )
+    }
+
+    if (name.includes('/')) {
+      throw new AstroError(
+        `The \`${component}\` component expects a \`name\` prop without slashes.`,
+        `Replace the \`${name}\` name of the \`${component}\` component ${location} with a single path segment, and use \`<Folder>\` components for nesting.`,
       )
     }
 
