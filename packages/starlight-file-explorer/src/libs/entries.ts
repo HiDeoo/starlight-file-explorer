@@ -44,7 +44,7 @@ export function processEntries(html: string, pathCounts: Map<string, number>): E
   }
 
   function getEntryFromNode(node: Element, parent?: FolderEntry): Entry {
-    const { dataCollapsed, dataDescription, dataIcon, dataName, dataSelected, dataType } = node.properties
+    const { dataBadges, dataCollapsed, dataDescription, dataIcon, dataName, dataSelected, dataType } = node.properties
 
     const name = String(dataName ?? '')
 
@@ -68,6 +68,11 @@ export function processEntries(html: string, pathCounts: Map<string, number>): E
     const icon = dataIcon ? (String(dataIcon) as StarlightIcon) : undefined
 
     const entry: Entry = {
+      badges: dataBadges
+        ? [JSON.parse(String(dataBadges)) as BadgesProp]
+            .flat()
+            .map((badge) => (typeof badge === 'string' ? { text: badge } : badge))
+        : [],
       content: '',
       description: dataDescription ? String(dataDescription) : undefined,
       id: '',
@@ -170,6 +175,7 @@ interface Entries {
 }
 
 interface BaseEntry {
+  badges: Badge[]
   content: string
   description: string | undefined
   icon: StarlightIcon
@@ -192,8 +198,16 @@ export type Entry = FileEntry | FolderEntry
 
 // TODO(HiDeoo) JSDoc
 export interface EntryProps {
+  badges?: BadgesProp
   description?: string
   icon?: StarlightIcon
   name: string
   selected?: boolean
 }
+
+interface Badge {
+  text: string
+  variant?: 'caution' | 'danger' | 'default' | 'note' | 'success' | 'tip'
+}
+
+type BadgesProp = string | (string | Badge)[]

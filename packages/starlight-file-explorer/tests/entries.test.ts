@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { EntryTagName, processEntries, type Entry } from '../src/libs/entries'
+import { EntryTagName, processEntries, type Entry, type EntryProps } from '../src/libs/entries'
 
 test('processes entries', () => {
   const { tree } = processTestEntries(
@@ -30,6 +30,22 @@ test('extracts descriptions', () => {
   const { list } = processTestEntries(root(file('file-1', { description: 'Description 1' }), file('file-2')))
 
   expect(list.map((entry) => entry.description)).toEqual(['Description 1', undefined])
+})
+
+test('extracts badges', () => {
+  const { list } = processTestEntries(
+    root(
+      file('file-1', { badges: ['New', { text: 'Beta', variant: 'caution' }] }),
+      file('file-2', { badges: 'New' }),
+      file('file-3'),
+    ),
+  )
+
+  expect(list.map((entry) => entry.badges)).toEqual([
+    [{ text: 'New' }, { text: 'Beta', variant: 'caution' }],
+    [{ text: 'New' }],
+    [],
+  ])
 })
 
 test('resolves icons', () => {
@@ -241,10 +257,11 @@ function folder(name: string, options: EntryOptions = {}, ...content: string[]) 
 function makeEntry(
   type: Entry['type'],
   name: string,
-  { collapsed, description, icon, selected }: EntryOptions,
+  { badges, collapsed, description, icon, selected }: EntryOptions,
   content: string,
 ) {
   const attributes = [`data-type="${type}"`, `data-name="${name}"`]
+  if (badges) attributes.push(`data-badges='${JSON.stringify(badges)}'`)
   if (collapsed) attributes.push('data-collapsed="true"')
   if (description) attributes.push(`data-description="${description}"`)
   if (icon) attributes.push(`data-icon="${icon}"`)
@@ -253,8 +270,9 @@ function makeEntry(
 }
 
 interface EntryOptions {
+  badges?: EntryProps['badges']
   collapsed?: boolean
-  description?: string
-  icon?: string
-  selected?: boolean
+  description?: EntryProps['description']
+  icon?: EntryProps['icon']
+  selected?: EntryProps['selected']
 }

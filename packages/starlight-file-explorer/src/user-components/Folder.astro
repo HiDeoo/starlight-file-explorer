@@ -6,11 +6,12 @@ interface Props extends EntryProps {
   collapsed?: boolean
 }
 
-const { collapsed, description, icon, name, selected } = Astro.props
+const { badges, collapsed, description, icon, name, selected } = Astro.props
 ---
 
 <EntryTagName
   data-type="folder"
+  data-badges={badges && JSON.stringify(badges)}
   data-collapsed={collapsed || undefined}
   data-description={description}
   data-icon={icon}
