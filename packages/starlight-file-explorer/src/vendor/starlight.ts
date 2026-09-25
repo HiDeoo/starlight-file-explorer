@@ -8,8 +8,8 @@ interface Definitions {
 
 /**
  * The content below is vendored from Starlight.
- * @see https://github.com/withastro/starlight/blob/f5f776859844c671fd797651294520217bf871d5/packages/starlight/src/user-components/file-tree-icons.ts
- * @see https://github.com/withastro/starlight/blob/f5f776859844c671fd797651294520217bf871d5/packages/starlight/src/user-components/file-tree-processor.ts
+ * @see https://github.com/withastro/starlight/blob/3ec633b8c50d3e1a6d67cae7dc4c50f80101ea41/packages/starlight/src/user-components/file-tree-icons.ts
+ * @see https://github.com/withastro/starlight/blob/3ec633b8c50d3e1a6d67cae7dc4c50f80101ea41/packages/starlight/src/user-components/file-tree-processor.ts
  */
 
 /** Return the icon name for a file based on its file name. */
@@ -205,10 +205,8 @@ const definitions: Definitions = {
     '.edn': 'seti:clojure',
     '.cfc': 'seti:coldfusion',
     '.cfm': 'seti:coldfusion',
-    // TODO(HiDeoo) Use `seti:coffee` once https://github.com/withastro/starlight/pull/4215 is released.
-    '.coffee': 'seti:default',
-    // TODO(HiDeoo) Use `seti:coffee` once https://github.com/withastro/starlight/pull/4215 is released.
-    '.litcoffee': 'seti:default',
+    '.coffee': 'seti:coffee',
+    '.litcoffee': 'seti:coffee',
     '.config': 'seti:config',
     '.cfg': 'seti:config',
     '.conf': 'seti:config',
