@@ -3,9 +3,8 @@ import { expect, test } from 'vitest'
 import { EntryTagName, processEntries, type Entry } from '../src/libs/entries'
 
 test('processes entries', () => {
-  const { tree } = processEntries(
+  const { tree } = processTestEntries(
     root(folder('folder-1', {}, file('file-2'), folder('folder-2', {}, file('file-3'))), file('file-1')),
-    0,
   )
 
   expect(tree).toMatchObject([
@@ -22,26 +21,25 @@ test('processes entries', () => {
 })
 
 test('extracts nested entries', () => {
-  const { list } = processEntries(folder('folder-1', {}, '<p>Folder 1</p>', file('file-2', {}, '<p>File 2</p>')), 0)
+  const { list } = processTestEntries(folder('folder-1', {}, '<p>Folder 1</p>', file('file-2', {}, '<p>File 2</p>')))
 
   expect(list.map((entry) => entry.content)).toEqual(['<p>Folder 1</p>', '<p>File 2</p>'])
 })
 
 test('extracts descriptions', () => {
-  const { list } = processEntries(root(file('file-1', { description: 'Description 1' }), file('file-2')), 0)
+  const { list } = processTestEntries(root(file('file-1', { description: 'Description 1' }), file('file-2')))
 
   expect(list.map((entry) => entry.description)).toEqual(['Description 1', undefined])
 })
 
 test('resolves icons', () => {
-  const { list } = processEntries(
+  const { list } = processTestEntries(
     root(
       folder('folder-1a', {}, file('file-2')),
       folder('folder-1b', { icon: 'star' }),
       file('file-1a.ts', { icon: 'rocket' }),
       file('file-1b.ts'),
     ),
-    0,
   )
 
   expect(list.map((entry) => [entry.name, entry.icon])).toEqual([
@@ -54,12 +52,26 @@ test('resolves icons', () => {
 })
 
 test('lists all entries with unique IDs', () => {
-  const { list } = processEntries(root(folder('folder-1', {}, file('file-2')), file('file-1')), 3)
+  const { list } = processTestEntries(root(folder('folder-1', {}, file('file-2')), file('file-1')))
 
   expect(list.map((entry) => [entry.name, entry.id])).toEqual([
-    ['folder-1', 'sfe-3-0'],
-    ['file-2', 'sfe-3-1'],
-    ['file-1', 'sfe-3-2'],
+    ['folder-1', '/folder-1/'],
+    ['file-2', '/folder-1/file-2'],
+    ['file-1', '/file-1'],
+  ])
+})
+
+test('prefixes IDs with numbers for paths already used on the page', () => {
+  const pathCounts = new Map<string, number>()
+
+  processTestEntries(root(file('file-1')), pathCounts)
+  processTestEntries(root(file('file-1')), pathCounts)
+
+  const { list } = processTestEntries(root(file('file-1'), file('file-2')), pathCounts)
+
+  expect(list.map((entry) => [entry.name, entry.id])).toEqual([
+    ['file-1', '2/file-1'],
+    ['file-2', '/file-2'],
   ])
 })
 
@@ -85,17 +97,16 @@ test.for([
     expected: 'folder-1',
   },
 ])('selects $description', ({ expected, html }) => {
-  expect(processEntries(html, 0).selected.name).toBe(expected)
+  expect(processTestEntries(html).selected.name).toBe(expected)
 })
 
 test('throws with multiple selected entries', () => {
   expect(() =>
-    processEntries(
+    processTestEntries(
       root(
         folder('folder-1', { selected: true }, file('file-2', { selected: true })),
         file('file-1', { selected: true }),
       ),
-      0,
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
     The \`<FileExplorer>\` component expects only one entry to be selected.
@@ -111,7 +122,7 @@ test('throws with multiple selected entries', () => {
 })
 
 test('throws with entries nested in a file', () => {
-  expect(() => processEntries(folder('folder-1', {}, file('file-2', {}, `<div>${file('file-3')}</div>`)), 0))
+  expect(() => processTestEntries(folder('folder-1', {}, file('file-2', {}, `<div>${file('file-3')}</div>`))))
     .toThrowErrorMatchingInlineSnapshot(`
     The \`<File>\` component expects no nested entries.
 
@@ -122,7 +133,7 @@ test('throws with entries nested in a file', () => {
 })
 
 test('throws with no entries', () => {
-  expect(() => processEntries('<p>Content</p>', 0)).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => processTestEntries('<p>Content</p>')).toThrowErrorMatchingInlineSnapshot(`
     The \`<FileExplorer>\` component expects at least one entry.
 
     ---
@@ -132,7 +143,7 @@ test('throws with no entries', () => {
 })
 
 test('throws with an empty name at the root', () => {
-  expect(() => processEntries(folder(''), 0)).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => processTestEntries(folder(''))).toThrowErrorMatchingInlineSnapshot(`
     The \`<Folder>\` component expects a non-empty \`name\` prop.
 
     ---
@@ -142,7 +153,7 @@ test('throws with an empty name at the root', () => {
 })
 
 test('throws with an empty name in a folder', () => {
-  expect(() => processEntries(folder('folder-1', {}, file('')), 0)).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => processTestEntries(folder('folder-1', {}, file('')))).toThrowErrorMatchingInlineSnapshot(`
     The \`<File>\` component expects a non-empty \`name\` prop.
 
     ---
@@ -152,7 +163,7 @@ test('throws with an empty name in a folder', () => {
 })
 
 test('throws with a slash in a name', () => {
-  expect(() => processEntries(folder('folder-1', {}, folder('folder-2/folder-3')), 0))
+  expect(() => processTestEntries(folder('folder-1', {}, folder('folder-2/folder-3'))))
     .toThrowErrorMatchingInlineSnapshot(`
     The \`<Folder>\` component expects a \`name\` prop without slashes.
 
@@ -163,7 +174,7 @@ test('throws with a slash in a name', () => {
 })
 
 test('throws when a file and a folder share the same path', () => {
-  expect(() => processEntries(root(file('entry-1'), folder('entry-1')), 0)).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => processTestEntries(root(file('entry-1'), folder('entry-1')))).toThrowErrorMatchingInlineSnapshot(`
     The \`<FileExplorer>\` component expects unique names in each folder.
 
     ---
@@ -176,7 +187,7 @@ test('throws when a file and a folder share the same path', () => {
 })
 
 test('throws when entries share the same path', () => {
-  expect(() => processEntries(folder('folder-1', {}, file('file-2'), file('file-2')), 0))
+  expect(() => processTestEntries(folder('folder-1', {}, file('file-2'), file('file-2'))))
     .toThrowErrorMatchingInlineSnapshot(`
     The \`<FileExplorer>\` component expects unique names in each folder.
 
@@ -190,7 +201,7 @@ test('throws when entries share the same path', () => {
 })
 
 test('expands collapsed folders containing the selected entry', () => {
-  const { list } = processEntries(
+  const { list } = processTestEntries(
     root(
       folder(
         'folder-1a',
@@ -200,7 +211,6 @@ test('expands collapsed folders containing the selected entry', () => {
       folder('folder-1b', { collapsed: true }, file('file-2a')),
       folder('folder-1c', {}, file('file-2b')),
     ),
-    0,
   )
 
   expect(list.filter((entry) => entry.type === 'folder').map((entry) => [entry.name, entry.collapsed])).toEqual([
@@ -210,6 +220,10 @@ test('expands collapsed folders containing the selected entry', () => {
     ['folder-1c', false],
   ])
 })
+
+function processTestEntries(html: string, pathCounts = new Map<string, number>()) {
+  return processEntries(html, pathCounts)
+}
 
 function root(...entries: string[]) {
   return entries.join('')

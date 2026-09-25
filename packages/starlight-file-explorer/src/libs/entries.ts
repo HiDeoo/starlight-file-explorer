@@ -8,13 +8,12 @@ import { getFileIconName } from '../vendor/starlight'
 
 export const EntryTagName = 'starlight-file-explorer-entry'
 
-export function processEntries(html: string, instance: number): Entries {
+export function processEntries(html: string, pathCounts: Map<string, number>): Entries {
   const tree = htmlToHast(html, { fragment: true })
   if (tree.type !== 'root') {
     throw new Error(`Expected \`htmlToHast()\` to return a root node but received \`${tree.type}\`.`)
   }
 
-  let count = 0
   const list: Entry[] = []
   const selectedEntries: Entry[] = []
 
@@ -71,7 +70,7 @@ export function processEntries(html: string, instance: number): Entries {
     const entry: Entry = {
       content: '',
       description: dataDescription ? String(dataDescription) : undefined,
-      id: `sfe-${instance}-${count++}`,
+      id: '',
       name,
       parent,
       ...(dataType === 'folder'
@@ -86,6 +85,13 @@ export function processEntries(html: string, instance: number): Entries {
             icon: icon ?? getFileIconName(name) ?? 'seti:default',
           }),
     }
+
+    // IDs start with a slash to avoid collisions with heading slugs, and are prefixed with a number when the path is
+    // already used by another file explorer on the same page.
+    const path = getEntryPath(entry)
+    const pathCount = pathCounts.get(path) ?? 0
+    entry.id = `${pathCount || ''}/${path}`
+    pathCounts.set(path, pathCount + 1)
 
     list.push(entry)
 

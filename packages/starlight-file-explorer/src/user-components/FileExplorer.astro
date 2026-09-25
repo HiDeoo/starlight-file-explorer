@@ -3,6 +3,7 @@ import { Icon } from '@astrojs/starlight/components'
 import type { APIContext } from 'astro'
 import { AstroError } from 'astro/errors'
 
+import RestoreScript from '../components/RestoreScript.astro'
 import Tree from '../components/Tree.astro'
 import { getEntryPath, processEntries } from '../libs/entries'
 
@@ -20,16 +21,25 @@ if (!label?.trim()) {
   )
 }
 
-const instanceSymbol = Symbol.for('starlight-file-explorer:instance')
+const pathCountsSymbol = Symbol.for('starlight-file-explorer:path-counts')
+const didRenderRestoreScriptSymbol = Symbol.for('starlight-file-explorer:did-render-restore-script')
 
 // https://github.com/withastro/starlight/blob/5a50fd103d4faf1d00592aa520b12e855fe940d7/packages/starlight/src/user-components/Tabs.astro#L11-L49
-const locals = Astro.locals as APIContext['locals'] & { [instanceSymbol]?: number }
-locals[instanceSymbol] ??= 0
-const instance = locals[instanceSymbol]++
+const locals = Astro.locals as APIContext['locals'] & {
+  [didRenderRestoreScriptSymbol]?: boolean
+  [pathCountsSymbol]?: Map<string, number>
+}
+const pathCounts = (locals[pathCountsSymbol] ??= new Map())
+const shouldRenderRestoreScript = locals[didRenderRestoreScriptSymbol] !== true
+locals[didRenderRestoreScriptSymbol] = true
 
 const html = await Astro.slots.render('default')
-const { list, selected, tree } = processEntries(html, instance)
+const { list, selected, tree } = processEntries(html, pathCounts)
+
+// TODO(HiDeoo) duplicate file names doesn't list everything?
 ---
+
+{shouldRenderRestoreScript && <RestoreScript />}
 
 <starlight-file-explorer>
   <div class="sfe-explorer">
@@ -54,6 +64,7 @@ const { list, selected, tree } = processEntries(html, instance)
       ))}
     </div>
   </div>
+  <starlight-file-explorer-restore />
 </starlight-file-explorer>
 
 <style>
@@ -154,7 +165,6 @@ const { list, selected, tree } = processEntries(html, instance)
   customElements.define(
     'starlight-file-explorer',
     class StarlightFileExplorer extends HTMLElement {
-      #selected: HTMLElement | undefined
       #walker = document.createTreeWalker(this, NodeFilter.SHOW_ELEMENT, (node) => {
         if (!(node instanceof HTMLElement)) return NodeFilter.FILTER_SKIP
 
@@ -170,9 +180,6 @@ const { list, selected, tree } = processEntries(html, instance)
 
       constructor() {
         super()
-
-        const state = this.querySelector('[aria-selected="true"]')
-        if (state instanceof HTMLElement) this.#selected = state
 
         this.addEventListener('click', this.#handleClick)
         this.addEventListener('keydown', this.#handleKeydown)
@@ -246,10 +253,12 @@ const { list, selected, tree } = processEntries(html, instance)
       #setSelected(item: Node | null | undefined) {
         if (!(item instanceof HTMLElement)) return
 
-        if (this.#selected) {
-          this.#selected.tabIndex = -1
-          this.#selected.setAttribute('aria-selected', 'false')
-          this.#getPanel(this.#selected)?.setAttribute('hidden', '')
+        const selected = this.querySelector<HTMLElement>('[role="treeitem"][aria-selected="true"]')
+
+        if (selected) {
+          selected.tabIndex = -1
+          selected.setAttribute('aria-selected', 'false')
+          this.#getPanel(selected)?.setAttribute('hidden', '')
         }
 
         item.tabIndex = 0
@@ -258,7 +267,7 @@ const { list, selected, tree } = processEntries(html, instance)
 
         item.focus()
 
-        this.#selected = item
+        history.replaceState(history.state, '', `#${encodeURI(item.dataset['panel'] ?? '')}`)
       }
 
       #getPanel(item: HTMLElement) {
