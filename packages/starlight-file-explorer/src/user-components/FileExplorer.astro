@@ -77,7 +77,7 @@ const pathPrefix = normalizedBase ? `${normalizedBase.replace(/\/+$/, '')}/` : '
             </div>
             <div class="sfe-panel-title">
               <Icon class="sfe-panel-icon" name={entry.icon} size="1.125em" />
-              <bdi aria-hidden="true">{entry.name}</bdi>
+              <bdi aria-hidden="true">{entry.type === 'folder' ? `${entry.name}/` : entry.name}</bdi>
             </div>
             {entry.description && <p class="sfe-panel-description">{entry.description}</p>}
             {entry.badges.length > 0 && (
