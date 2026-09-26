@@ -127,6 +127,14 @@ const pathPrefix = normalizedBase ? `${normalizedBase.replace(/\/+$/, '')}/` : '
 
   .sfe-panel {
     padding: 1rem;
+
+    & > :global(.sl-link-button:not(:has(~ :not(.sl-link-button)))) {
+      margin-block-end: 0;
+
+      :global(:not(.sl-link-button)) + & {
+        margin-block-start: 1.5rem;
+      }
+    }
   }
 
   @container (min-width: 36rem) {
@@ -137,7 +145,8 @@ const pathPrefix = normalizedBase ? `${normalizedBase.replace(/\/+$/, '')}/` : '
     .sfe-tree {
       border-block-end: none;
       border-inline-end: 1px solid var(--sl-color-gray-5);
-      inline-size: min(45ch, 38cqi);
+      inline-size: max-content;
+      max-inline-size: min(45ch, 38cqi);
       max-block-size: none;
     }
 

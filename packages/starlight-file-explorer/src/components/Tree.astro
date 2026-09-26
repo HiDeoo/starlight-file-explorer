@@ -61,7 +61,9 @@ const { depth = 0, entries, selected } = Astro.props
     }
 
     &[aria-expanded='false'] > [role='group'] {
-      display: none;
+      block-size: 0;
+      overflow: clip;
+      visibility: hidden;
     }
 
     &[aria-selected='true'] > .sfe-tree-row {
