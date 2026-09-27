@@ -5,12 +5,19 @@ template: splash
 head:
   - tag: title
     content: Starlight File Explorer
+  - tag: style
+    content: |
+      .hero-html {
+        --size: 12rem;
+        font-size: var(--size);
+        justify-content: center;
+        line-height: var(--size);
+      }
 editUrl: false
 hero:
   tagline: // TODO(HiDeoo) desc
   image:
-    # TODO(HiDeoo)
-    html: '🗃'
+    html: '🗂️'
   actions:
     - text: Get Started
       link: /getting-started/
@@ -20,8 +27,6 @@ hero:
       icon: right-arrow
       variant: minimal
 ---
-
-{/* // TODO(HiDeoo) */}
 
 import { LinkButton } from '@astrojs/starlight/components'
 import { FileExplorer, File, Folder } from 'starlight-file-explorer'
