@@ -23,7 +23,13 @@
   "private": true,
   "sideEffects": false,
   "keywords": [
-    "// TODO(HiDeoo)"
+    "astro-component",
+    "withastro",
+    "starlight",
+    "folder",
+    "file",
+    "tree",
+    "explorer"
   ],
   "homepage": "https://github.com/HiDeoo/starlight-file-explorer",
   "repository": {
