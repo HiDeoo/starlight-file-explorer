@@ -1,8 +1,11 @@
 ---
 import { EntryTagName, type EntryProps } from '../libs/entries'
 
-// TODO(HiDeoo) JSDoc
 interface Props extends EntryProps {
+  /**
+   * Defines if the folder is collapsed by default or not.
+   * A folder containing the selected file or folder is always expanded.
+   */
   collapsed?: boolean
 }
 

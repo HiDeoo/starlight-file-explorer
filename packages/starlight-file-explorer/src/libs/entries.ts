@@ -196,12 +196,34 @@ interface FolderEntry extends BaseEntry {
 
 export type Entry = FileEntry | FolderEntry
 
-// TODO(HiDeoo) JSDoc
 export interface EntryProps {
+  /**
+   * One or more badges to display in the panel of the file or folder.
+   *
+   * @see https://starlight.astro.build/components/badges/
+   */
   badges?: BadgesProp
+  /**
+   * A short description displayed below the name of the file or folder in its panel.
+   */
   description?: string
+  /**
+   * The name of a Starlight built-in icon to display for the file or folder.
+   * Defaults to an icon matching the file name for files, and to a folder icon for folders.
+   *
+   * @see https://starlight.astro.build/reference/icons/#all-icons
+   */
   icon?: StarlightIcon
+  /**
+   * The name of the file or folder displayed in the file explorer and used in its path.
+   * It cannot contain a `/` and must be unique among the files and folders in the same folder.
+   */
   name: string
+  /**
+   * Defines if the file or folder is selected by default or not.
+   * Only one file or folder can be selected.
+   * When no file or folder is selected, the first file is selected, or the first folder if there are no files.
+   */
   selected?: boolean
 }
 

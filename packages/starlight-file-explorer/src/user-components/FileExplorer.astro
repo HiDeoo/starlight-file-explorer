@@ -7,9 +7,14 @@ import RestoreScript from '../components/RestoreScript.astro'
 import Tree from '../components/Tree.astro'
 import { getEntryPath, processEntries } from '../libs/entries'
 
-// TODO(HiDeoo) jsdoc
 interface Props {
+  /**
+   * A path to prefix the path of each file and folder in their panel.
+   */
   base?: string
+  /**
+   * A label used by assistive technologies to describe the file explorer.
+   */
   label: string
 }
 
