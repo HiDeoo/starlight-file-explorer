@@ -8,7 +8,7 @@ const site =
 export default defineConfig({
   integrations: [
     starlight({
-      description: '// TODO(HiDeoo)',
+      description: 'Explore and document files and folders in your Starlight site with an interactive file explorer.',
       editLink: {
         baseUrl: 'https://github.com/HiDeoo/starlight-file-explorer/edit/main/docs/',
       },
@@ -21,7 +21,7 @@ export default defineConfig({
           tag: 'meta',
           attrs: {
             property: 'og:image:alt',
-            content: '// TODO(HiDeoo)',
+            content: 'Explore and document files and folders in your Starlight site with an interactive file explorer.',
           },
         },
       ],

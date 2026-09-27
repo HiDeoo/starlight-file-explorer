@@ -2,7 +2,7 @@
   "name": "starlight-file-explorer-monorepo",
   "version": "0.0.1",
   "license": "MIT",
-  "description": "// TODO(HiDeoo)",
+  "description": "Explore and document files and folders in your Starlight site with an interactive file explorer.",
   "author": "HiDeoo <github@hideoo.dev> (https://hideoo.dev)",
   "type": "module",
   "scripts": {
