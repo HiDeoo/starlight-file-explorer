@@ -1,1 +1,1 @@
-# starlight-file-explorer
+packages/starlight-file-explorer/README.md

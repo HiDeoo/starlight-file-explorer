@@ -1,0 +1,25 @@
+---
+import { EntryTagName, type EntryProps } from '../libs/entries'
+
+interface Props extends EntryProps {
+  /**
+   * Defines if the folder is collapsed by default or not.
+   * A folder containing the selected file or folder is always expanded.
+   */
+  collapsed?: boolean
+}
+
+const { badges, collapsed, description, icon, name, selected } = Astro.props
+---
+
+<EntryTagName
+  data-type="folder"
+  data-badges={badges && JSON.stringify(badges)}
+  data-collapsed={collapsed || undefined}
+  data-description={description}
+  data-icon={icon}
+  data-name={name}
+  data-selected={selected || undefined}
+>
+  <slot />
+</EntryTagName>

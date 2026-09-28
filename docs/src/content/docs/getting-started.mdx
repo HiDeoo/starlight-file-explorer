@@ -1,0 +1,94 @@
+---
+title: Getting Started
+description: Learn how to document files and folders in your project in an interactive file explorer with the Starlight File Explorer component.
+---
+
+A [Starlight](https://starlight.astro.build) component to explore and document files and folders in your project with an interactive file explorer:
+
+- Markdown and MDX content for each file and folder, including Starlight components
+- Files and folders linkable from anywhere
+- Automatic file icons picked from file names with optional custom icons
+- Badges to highlight important files and folders
+
+## Prerequisites
+
+You will need to have a Starlight website set up.
+If you don't have one yet, you can follow the ["Getting Started"](https://starlight.astro.build/getting-started) guide in the Starlight docs to create one.
+
+## Installation
+
+import { Steps } from '@astrojs/starlight/components'
+import { FileExplorer, File, Folder } from 'starlight-file-explorer'
+import {
+  PackageManagers,
+  Preview,
+} from '@hideoo/starlight-plugins-docs-components'
+
+<Steps>
+
+1. Install the Starlight File Explorer component using your favorite package manager:
+
+   <PackageManagers pkg="starlight-file-explorer" />
+
+2. Use the component in any MDX files of your Starlight documentation site.
+
+   ```mdx title="src/content/docs/example.mdx"
+   import { FileExplorer, File, Folder } from 'starlight-file-explorer'
+
+   <FileExplorer label="Project structure">
+     <Folder name="src">
+
+       The source code of your project.
+
+       <File name="content.config.ts">
+
+         The content collections configuration file.
+
+       </File>
+
+     </Folder>
+     <File name="astro.config.mjs">
+
+       The Astro configuration file.
+
+     </File>
+   </FileExplorer>
+   ```
+
+3. [Start the development server](https://starlight.astro.build/getting-started/#start-the-development-server) to preview the component.
+
+   Using the previous example, the result should look like this:
+
+   <Preview>
+
+   <Fragment slot="preview">
+
+   <FileExplorer label="Project structure">
+
+   <Folder name="src">
+
+   The source code of your project.
+
+   <File name="content.config.ts">
+
+   The content collections configuration file.
+
+   </File>
+
+   </Folder>
+
+   <File name="astro.config.mjs">
+
+   The Astro configuration file.
+
+   </File>
+
+   </FileExplorer>
+
+   </Fragment>
+
+   </Preview>
+
+</Steps>
+
+For more details and examples, please refer to the [usage guide](/usage/).

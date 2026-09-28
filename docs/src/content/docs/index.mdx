@@ -1,0 +1,417 @@
+---
+title: Starlight File Explorer
+description: Explore and document files and folders in your Starlight site with an interactive file explorer.
+template: splash
+head:
+  - tag: title
+    content: Starlight File Explorer
+  - tag: style
+    content: |
+      .hero-html {
+        --size: 12rem;
+        font-size: var(--size);
+        justify-content: center;
+        line-height: var(--size);
+      }
+editUrl: false
+hero:
+  tagline: Explore and document files and folders in your Starlight site with an interactive file explorer.
+  image:
+    html: '🗂️'
+  actions:
+    - text: Get Started
+      link: /getting-started/
+      icon: rocket
+    - text: Usage
+      link: /usage/
+      icon: right-arrow
+      variant: minimal
+---
+
+import { LinkButton } from '@astrojs/starlight/components'
+import { FileExplorer, File, Folder } from 'starlight-file-explorer'
+
+<FileExplorer label="Starlight project structure">
+  <Folder name="public" description="Static assets">
+
+    This folder contains all static assets (fonts, favicon, PDFs, etc.) that will not be processed by Astro.
+    The files in this folder will be copied into the build folder untouched, and then your site will be built.
+
+    :::tip
+    As a general rule, any CSS or JavaScript that you write yourself should live in your [`src/` directory](#/src/).
+    :::
+
+    <LinkButton
+      href="https://docs.astro.build/en/basics/project-structure/#public"
+      variant="secondary"
+      icon="external"
+      iconPlacement="start"
+    >
+      Reference
+    </LinkButton>
+
+    <File name="favicon.svg" description="Default favicon">
+
+      The default favicon for your website.
+      The favicon can be configured using Starlight's [`favicon`](https://starlight.astro.build/reference/configuration/#favicon) configuration option.
+
+      The following example configures the `public/images/favicon.svg` file as the favicon for your documentation site.
+
+      ```js
+      starlight({
+        favicon: '/images/favicon.svg',
+      })
+      ```
+
+      <LinkButton
+        href="https://starlight.astro.build/reference/configuration/#favicon"
+        variant="secondary"
+        icon="external"
+        iconPlacement="start"
+      >
+        Reference
+      </LinkButton>
+
+    </File>
+
+  </Folder>
+  <Folder name="src" description="Source code">
+
+    The `src/` folder is where most of your project source code lives.
+    This includes:
+
+    - [Pages](https://docs.astro.build/en/basics/astro-pages/)
+    - [Layouts](https://docs.astro.build/en/basics/layouts/)
+    - [Astro components](https://docs.astro.build/en/basics/astro-components/)
+    - [UI framework components (React, etc.)](https://docs.astro.build/en/guides/framework-components/)
+    - [Styles (CSS, Sass)](https://docs.astro.build/en/guides/styling/)
+    - [Markdown](https://docs.astro.build/en/guides/markdown-content/)
+    - [Images to be optimized and processed by Astro](https://docs.astro.build/en/guides/images/)
+
+    <LinkButton
+      href="https://docs.astro.build/en/basics/project-structure/#src"
+      variant="secondary"
+      icon="external"
+      iconPlacement="start"
+    >
+      Reference
+    </LinkButton>
+
+    <Folder name="assets">
+
+      Local images should be kept in `src/` when possible so that Astro can transform, optimize, and bundle them.
+      Files in the [`public/`](#/public/) directory are always copied into the build folder untouched.
+
+      Local images stored in `src/` can be used by all files in your project: `.astro`, `.md`, `.mdx`, `.mdoc`, and other UI frameworks as file imports.
+      Images can be stored in any folder, `src/assets/` for example.
+
+      <LinkButton
+        href="https://docs.astro.build/en/guides/images/#src-vs-public"
+        variant="secondary"
+        icon="external"
+        iconPlacement="start"
+      >
+        Reference
+      </LinkButton>
+
+      <File name="logo.svg" description="Site logo">
+
+        A logo image to show in the navigation bar alongside or instead of the site title.
+
+        Add the path to your logo as Starlight's [`logo.src`](https://starlight.astro.build/reference/configuration/#logo) option in [`astro.config.mjs`](#/astro.config.mjs):
+
+        ```js
+        starlight({
+          logo: {
+            src: './src/assets/logo.svg',
+          },
+        })
+        ```
+
+        <LinkButton
+          href="https://starlight.astro.build/reference/configuration/#logo"
+          variant="secondary"
+          icon="external"
+          iconPlacement="start"
+        >
+          Reference
+        </LinkButton>
+
+      </File>
+      <File name="screenshot.jpg" description="Image used in a page">
+
+        Images in Starlight use [Astro's built-in optimized asset support](https://docs.astro.build/en/guides/images/).
+
+        Markdown and MDX support the Markdown syntax for displaying images that includes alt-text for screen readers and assistive technology.
+        Relative image paths are also supported for images stored locally in your project, e.g. from [`src/content/docs/index.mdx`](#/src/content/docs/index.mdx):
+
+        ```mdx
+        ![A screenshot of the project](../../assets/screenshot.jpg)
+        ```
+
+        <LinkButton
+          href="https://starlight.astro.build/guides/authoring-content/#images"
+          variant="secondary"
+          icon="external"
+          iconPlacement="start"
+        >
+          Reference
+        </LinkButton>
+
+      </File>
+
+    </Folder>
+    <Folder name="components">
+
+      This folder contains all your project's [Astro components](https://docs.astro.build/en/basics/astro-components/) or [UI framework components](https://docs.astro.build/en/guides/framework-components/) like React or Vue.
+      It is a common convention in Astro projects to group all components in the `src/components/` directory, but it is not required.
+
+      <LinkButton
+        href="https://docs.astro.build/en/basics/project-structure/#srccomponents"
+        variant="secondary"
+        icon="external"
+        iconPlacement="start"
+      >
+        Reference
+      </LinkButton>
+
+      <File name="CustomButton.astro" description="Astro component">
+
+        [Astro components](https://docs.astro.build/en/basics/astro-components/) are the basic building blocks of any Astro project.
+        They use the `.astro` file extension.
+
+        You can use a component by importing it into your MDX file and then rendering it as a JSX tag.
+        These look like HTML tags but start with an uppercase letter matching the name in your `import` statement, e.g. in [`src/content/docs/index.mdx`](#/src/content/docs/index.mdx):
+
+        ```mdx
+        import CustomButton from '../../components/CustomButton.astro';
+
+        <CustomButton>Get started</CustomButton>
+        ```
+
+        <LinkButton
+          href="https://starlight.astro.build/components/using-components/#using-a-component-in-mdx"
+          variant="secondary"
+          icon="external"
+          iconPlacement="start"
+        >
+          Reference
+        </LinkButton>
+
+      </File>
+      <File name="InteractiveWidget.jsx" description="UI framework component" badges="React" selected>
+
+        Astro supports a variety of popular frameworks including [React](https://react.dev/), [Preact](https://preactjs.com/), [Svelte](https://svelte.dev/), [Vue](https://vuejs.org/), [SolidJS](https://www.solidjs.com/), and [AlpineJS](https://alpinejs.dev/) with official integrations.
+        You can also find even more [community-maintained framework integrations](https://astro.build/integrations/?search=&categories%5B%5D=frameworks) (e.g. Angular, Qwik, Elm).
+
+        A framework component can be made interactive (hydrated) using a [`client:*` directive](https://docs.astro.build/en/reference/directives-reference/#client-directives).
+        These are component attributes that determine when your component's JavaScript should be sent to the browser. For example, in [`src/content/docs/index.mdx`](#/src/content/docs/index.mdx):
+
+        ```mdx
+        import InteractiveWidget from '../../components/InteractiveWidget.jsx';
+
+        {/* This component's JS will begin importing when the page loads */}
+        <InteractiveWidget client:load />
+        ```
+
+        <LinkButton
+          href="https://docs.astro.build/en/guides/framework-components/#hydrating-interactive-components"
+          variant="secondary"
+          icon="external"
+          iconPlacement="start"
+        >
+          Reference
+        </LinkButton>
+
+      </File>
+
+    </Folder>
+    <Folder name="content">
+
+      This folder contains the content of your Starlight site:
+
+      - [`docs/`](#/src/content/docs/): Content files.
+      - `i18n/` (optional): Translation data to support [internationalization](https://starlight.astro.build/guides/i18n/).
+
+      <Folder name="docs" description="Content files">
+
+        Starlight turns each `.md`, `.mdx` or `.mdoc` file in this directory into a page on your site.
+        Use sub-folders to organize your files and to create multiple path segments.
+
+        For example, `src/content/docs/reference/faq.md` will generate a page at `example.com/reference/faq`.
+
+        <LinkButton
+          href="https://starlight.astro.build/guides/pages/#add-pages"
+          variant="secondary"
+          icon="external"
+          iconPlacement="start"
+        >
+          Reference
+        </LinkButton>
+
+        <File name="index.mdx" description="Home page">
+
+          The `index.mdx` file at the root of `src/content/docs/` generates the home page of your documentation site.
+
+          You can customize individual Markdown and MDX pages in Starlight by setting values in their [frontmatter](https://starlight.astro.build/reference/frontmatter/).
+          Set `template` to `'splash'` to use a wider layout without any sidebars designed for landing pages, and use `hero` to add a hero component to the top of the page:
+
+          ```mdx
+          ---
+          title: My Home Page
+          template: splash
+          hero:
+            tagline: Take your stuff to the moon and back in the blink of an eye.
+            image:
+              alt: A glittering, brightly colored logo
+              file: ../../assets/logo.svg
+            actions:
+              - text: Tell me more
+                link: /getting-started/
+                icon: right-arrow
+          ---
+          ```
+
+          <LinkButton
+            href="https://starlight.astro.build/reference/frontmatter/#hero"
+            variant="secondary"
+            icon="external"
+            iconPlacement="start"
+          >
+            Reference
+          </LinkButton>
+
+        </File>
+
+      </Folder>
+
+    </Folder>
+    <File name="content.config.ts" description="Content collections configuration file">
+
+      [Astro content collections](https://docs.astro.build/en/guides/content-collections/) are used by Starlight to manage and organize your content files.
+      All of your build-time content collections are configured in a special `src/content.config.ts` file.
+
+      The example below shows a typical `content.config.ts` file for a Starlight project.
+
+      ```ts
+      import { defineCollection } from 'astro:content';
+      import { docsLoader } from '@astrojs/starlight/loaders';
+      import { docsSchema } from '@astrojs/starlight/schema';
+
+      export const collections = {
+        docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }),
+      };
+      ```
+
+      <LinkButton
+        href="https://starlight.astro.build/reference/frontmatter/#customize-frontmatter-schema"
+        variant="secondary"
+        icon="external"
+        iconPlacement="start"
+      >
+        Reference
+      </LinkButton>
+
+    </File>
+
+  </Folder>
+  <File name="astro.config.mjs" description="Astro configuration file">
+
+    The Astro configuration file which also includes the Starlight integration and configuration.
+
+    The example below shows a basic configuration for an Astro project using the Starlight integration.
+
+    ```js
+    import { defineConfig } from 'astro/config';
+    import starlight from '@astrojs/starlight';
+
+    export default defineConfig({
+      integrations: [
+        starlight({
+          title: 'My Docs',
+        }),
+      ],
+    });
+    ```
+
+    <LinkButton
+      href="https://docs.astro.build/en/reference/configuration-reference/"
+      variant="secondary"
+      icon="external"
+      iconPlacement="start"
+    >
+      Astro configuration
+    </LinkButton>
+    <LinkButton
+      href="https://starlight.astro.build/reference/configuration/"
+      variant="secondary"
+      icon="external"
+      iconPlacement="start"
+    >
+      Starlight configuration
+    </LinkButton>
+
+  </File>
+  <File name="package.json" description="Project manifest">
+
+    A file used by JavaScript package managers to manage your dependencies.
+    It also defines the scripts that are commonly used to run Astro (ex: `npm run dev`, `npm run build`).
+
+    The example below shows a typical `package.json` file for a Starlight project.
+
+    ```json
+    {
+      "name": "@example/starlight-basics",
+      "type": "module",
+      "version": "0.0.1",
+      "private": true,
+      "scripts": {
+        "dev": "astro dev",
+        "start": "astro dev",
+        "build": "astro build",
+        "preview": "astro preview",
+        "astro": "astro"
+      },
+      "dependencies": {
+        "@astrojs/starlight": "^0.42.4",
+        "astro": "^7.2.10",
+        "sharp": "^0.35.3"
+      }
+    }
+    ```
+
+    <LinkButton
+      href="https://docs.astro.build/en/basics/project-structure/#packagejson"
+      variant="secondary"
+      icon="external"
+      iconPlacement="start"
+    >
+      Reference
+    </LinkButton>
+
+  </File>
+  <File name="tsconfig.json" description="TypeScript configuration file">
+
+    A file containing all TypeScript configuration options for your Astro project.
+
+    The example below shows a typical `tsconfig.json` file for an Astro project.
+
+    ```json
+    {
+      "extends": "astro/tsconfigs/strict",
+      "include": [".astro/types.d.ts", "**/*"],
+      "exclude": ["dist"]
+    }
+    ```
+
+    <LinkButton
+      href="https://docs.astro.build/en/basics/project-structure/#tsconfigjson"
+      variant="secondary"
+      icon="external"
+      iconPlacement="start"
+    >
+      Reference
+    </LinkButton>
+
+  </File>
+</FileExplorer>

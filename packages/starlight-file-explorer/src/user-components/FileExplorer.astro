@@ -1,0 +1,341 @@
+---
+import { Badge, Icon } from '@astrojs/starlight/components'
+import type { APIContext } from 'astro'
+import { AstroError } from 'astro/errors'
+
+import RestoreScript from '../components/RestoreScript.astro'
+import Tree from '../components/Tree.astro'
+import { getEntryPath, processEntries } from '../libs/entries'
+
+interface Props {
+  /**
+   * A path to prefix the path of each file and folder in their panel.
+   */
+  base?: string
+  /**
+   * A label used by assistive technologies to describe the file explorer.
+   */
+  label: string
+}
+
+const { base, label } = Astro.props
+
+if (!label?.trim()) {
+  throw new AstroError(
+    'The `<FileExplorer>` component expects a non-empty `label` prop.',
+    'Set a non-empty `label` prop on the `<FileExplorer>` component to describe its file tree to assistive technologies, e.g. `<FileExplorer label="Project files">`.',
+  )
+}
+
+const pathCountsSymbol = Symbol.for('starlight-file-explorer:path-counts')
+const didRenderRestoreScriptSymbol = Symbol.for('starlight-file-explorer:did-render-restore-script')
+
+// https://github.com/withastro/starlight/blob/5a50fd103d4faf1d00592aa520b12e855fe940d7/packages/starlight/src/user-components/Tabs.astro#L11-L49
+const locals = Astro.locals as APIContext['locals'] & {
+  [didRenderRestoreScriptSymbol]?: boolean
+  [pathCountsSymbol]?: Map<string, number>
+}
+const pathCounts = (locals[pathCountsSymbol] ??= new Map())
+const shouldRenderRestoreScript = locals[didRenderRestoreScriptSymbol] !== true
+locals[didRenderRestoreScriptSymbol] = true
+
+const html = await Astro.slots.render('default')
+const { list, selected, tree } = processEntries(html, pathCounts)
+
+const normalizedBase = base?.trim()
+const pathPrefix = normalizedBase ? `${normalizedBase.replace(/\/+$/, '')}/` : ''
+---
+
+{shouldRenderRestoreScript && <RestoreScript />}
+
+<starlight-file-explorer>
+  <div class="sfe-explorer">
+    <ul role="tree" aria-label={label} class="sfe-tree not-content">
+      <Tree entries={tree} selected={selected.id} />
+    </ul>
+    <div class="sfe-panels">
+      {list.map((entry) => (
+        <div class="sfe-panel" hidden={entry !== selected} id={entry.id}>
+          <div class="sfe-panel-header not-content">
+            <div class="sfe-panel-path">
+              <bdi>
+                {`${pathPrefix}${getEntryPath(entry)}`.split('/').map((segment, index, segments) => (
+                  <>
+                    {index > 0 && (
+                      <>
+                        <span
+                          class:list={[
+                            'sfe-panel-path-separator',
+                            segments[index - 1] === '' && 'sfe-panel-path-separator-leading',
+                            !segment && 'sfe-panel-path-separator-trailing',
+                          ]}
+                        >
+                          /
+                        </span>
+                        {segment && <wbr />}
+                      </>
+                    )}
+                    {segment}
+                  </>
+                ))}
+              </bdi>
+            </div>
+            <div class="sfe-panel-title">
+              <Icon class="sfe-panel-icon" name={entry.icon} size="1.125em" />
+              <bdi aria-hidden="true">{entry.type === 'folder' ? `${entry.name}/` : entry.name}</bdi>
+            </div>
+            {entry.description && <p class="sfe-panel-description">{entry.description}</p>}
+            {entry.badges.length > 0 && (
+              <div class="sfe-panel-badges">
+                {entry.badges.map((badge) => (
+                  <Badge text={badge.text} variant={badge.variant} />
+                ))}
+              </div>
+            )}
+          </div>
+          <Fragment set:html={entry.content} />
+        </div>
+      ))}
+    </div>
+  </div>
+  <starlight-file-explorer-restore />
+</starlight-file-explorer>
+
+<style>
+  starlight-file-explorer {
+    container-type: inline-size;
+    display: block;
+  }
+
+  .sfe-explorer {
+    border: 1px solid var(--sl-color-gray-5);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sfe-tree {
+    background-color: var(--sl-color-gray-6);
+    border-block-end: 1px solid var(--sl-color-gray-5);
+    font-family: var(--__sl-font-mono);
+    font-size: var(--sl-text-xs);
+    list-style: none;
+    max-block-size: 50svh;
+    overflow-x: clip;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+  }
+
+  .sfe-panels,
+  .sfe-panel {
+    margin-top: 0;
+  }
+
+  .sfe-panel {
+    padding: 1rem;
+
+    & > :global(.sl-link-button:not(:has(~ :not(.sl-link-button)))) {
+      margin-block-end: 0;
+
+      :global(:not(.sl-link-button)) + & {
+        margin-block-start: 1.5rem;
+      }
+    }
+  }
+
+  @container (min-width: 36rem) {
+    .sfe-explorer {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .sfe-tree {
+      border-block-end: none;
+      border-inline-end: 1px solid var(--sl-color-gray-5);
+      inline-size: max-content;
+      max-inline-size: min(45ch, 38cqi);
+      max-block-size: none;
+    }
+
+    .sfe-panel {
+      padding: 1.5rem;
+    }
+  }
+
+  .sfe-panel-header {
+    overflow-wrap: anywhere;
+
+    & + :global(*) {
+      margin-top: 1.25rem;
+    }
+  }
+
+  .sfe-panel-path {
+    color: var(--sl-color-gray-3);
+    font-family: var(--__sl-font-mono);
+    font-size: var(--sl-text-2xs);
+    line-height: 1.5;
+    margin-block-end: 1rem;
+  }
+
+  .sfe-panel-path-separator {
+    color: var(--sl-color-gray-4);
+    margin-inline: 0.5ch;
+
+    &.sfe-panel-path-separator-leading {
+      margin-inline-start: 0;
+    }
+
+    &.sfe-panel-path-separator-trailing {
+      color: inherit;
+    }
+  }
+
+  .sfe-panel-title {
+    align-items: start;
+    color: var(--sl-color-white);
+    display: flex;
+    font-family: var(--__sl-font-mono);
+    font-size: var(--sl-text-xl);
+    font-weight: 600;
+    gap: 0.625rem;
+    line-height: 1.125;
+  }
+
+  .sfe-panel-icon {
+    border: 1px solid currentColor;
+    border-radius: 0.25rem;
+    color: var(--sl-color-gray-3);
+    flex-shrink: 0;
+    padding: 0.2em;
+  }
+
+  .sfe-panel-description {
+    color: var(--sl-color-gray-3);
+    font-size: 0.9375rem;
+    line-height: 1.33;
+    margin-block-start: 0.5rem;
+  }
+
+  .sfe-panel-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-block-start: 0.625rem;
+  }
+</style>
+
+<script>
+  // https://www.w3.org/WAI/ARIA/apg/patterns/treeview/examples/treeview-1a/
+  customElements.define(
+    'starlight-file-explorer',
+    class StarlightFileExplorer extends HTMLElement {
+      #walker = document.createTreeWalker(this, NodeFilter.SHOW_ELEMENT, (node) => {
+        if (!(node instanceof HTMLElement)) return NodeFilter.FILTER_SKIP
+
+        const role = node.getAttribute('role')
+
+        if (role === 'treeitem') return NodeFilter.FILTER_ACCEPT
+        if (role === 'group' && node.parentElement?.getAttribute('aria-expanded') === 'false') {
+          return NodeFilter.FILTER_REJECT
+        }
+
+        return NodeFilter.FILTER_SKIP
+      })
+
+      constructor() {
+        super()
+
+        this.addEventListener('click', this.#handleClick)
+        this.addEventListener('keydown', this.#handleKeydown)
+      }
+
+      #handleClick = (event: MouseEvent) => {
+        if (!(event.target instanceof Element)) return
+
+        const item = event.target.closest<HTMLElement>('[role="treeitem"]')
+        if (!item) return
+
+        if (event.target.closest('.sfe-tree-toggle')) {
+          this.#setExpanded(item, item.getAttribute('aria-expanded') !== 'true')
+        } else if (event.target.closest('.sfe-tree-row')) {
+          this.#setSelected(item)
+          this.#setExpanded(item, true)
+        }
+      }
+
+      #handleKeydown = (event: KeyboardEvent) => {
+        if (!(event.target instanceof Element)) return
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+
+        const item = event.target.closest<HTMLElement>('[role="treeitem"]')
+        if (!item) return
+
+        this.#walker.currentNode = item
+        const isExpanded = item.getAttribute('aria-expanded') === 'true'
+
+        switch (event.key) {
+          case 'ArrowDown':
+            this.#setSelected(this.#walker.nextNode())
+            break
+          case 'ArrowUp':
+            this.#setSelected(this.#walker.previousNode())
+            break
+          case 'ArrowRight':
+            if (isExpanded) this.#setSelected(this.#walker.nextNode())
+            else this.#setExpanded(item, true)
+            break
+          case 'ArrowLeft':
+            if (isExpanded) this.#setExpanded(item, false)
+            else this.#setSelected(this.#walker.parentNode())
+            break
+          case 'Home':
+            this.#walker.currentNode = this
+            this.#setSelected(this.#walker.firstChild())
+            break
+          case 'End': {
+            this.#walker.currentNode = this.querySelector('.sfe-panels') ?? this
+            this.#setSelected(this.#walker.previousNode())
+            break
+          }
+          case 'Enter':
+          case ' ': {
+            this.#setExpanded(item, !isExpanded)
+            break
+          }
+          default: {
+            return
+          }
+        }
+
+        event.preventDefault()
+      }
+
+      #setExpanded(item: HTMLElement, expanded: boolean) {
+        if (item.hasAttribute('aria-expanded')) item.setAttribute('aria-expanded', String(expanded))
+      }
+
+      #setSelected(item: Node | null | undefined) {
+        if (!(item instanceof HTMLElement)) return
+
+        const selected = this.querySelector<HTMLElement>('[role="treeitem"][aria-selected="true"]')
+
+        if (selected) {
+          selected.tabIndex = -1
+          selected.setAttribute('aria-selected', 'false')
+          this.#getPanel(selected)?.setAttribute('hidden', '')
+        }
+
+        item.tabIndex = 0
+        item.setAttribute('aria-selected', 'true')
+        this.#getPanel(item)?.removeAttribute('hidden')
+
+        item.focus()
+
+        history.replaceState(history.state, '', `#${encodeURI(item.dataset['panel'] ?? '')}`)
+      }
+
+      #getPanel(item: HTMLElement) {
+        return document.getElementById(item.dataset['panel'] ?? '')
+      }
+    },
+  )
+</script>

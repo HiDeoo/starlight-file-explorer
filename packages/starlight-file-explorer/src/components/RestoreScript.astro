@@ -1,0 +1,53 @@
+---
+// Inlined to avoid a flash of invalid selected entry.
+---
+
+<script is:inline>
+  ;(() => {
+    customElements.define(
+      'starlight-file-explorer-restore',
+      class StarlightFileExplorerRestore extends HTMLElement {
+        connectedCallback() {
+          this.#restore()
+          // On load, the browser scrolls to the panel automatically. On hash change, the scroll happens before the
+          // panel is revealed.
+          window.addEventListener('hashchange', () => this.#restore(true))
+        }
+
+        #restore(scroll = false) {
+          const explorer = this.closest('starlight-file-explorer')
+          if (!explorer) return
+          let id
+
+          try {
+            id = decodeURIComponent(location.hash.slice(1))
+          } catch {
+            return
+          }
+
+          const item = explorer.querySelector(`[role="treeitem"][data-panel="${CSS.escape(id)}"]`)
+          if (!item) return
+
+          const selected = explorer.querySelector('[role="treeitem"][aria-selected="true"]')
+          if (selected && selected !== item) {
+            selected.setAttribute('aria-selected', 'false')
+            selected.tabIndex = -1
+            document.getElementById(selected.dataset.panel)?.setAttribute('hidden', '')
+          }
+
+          item.setAttribute('aria-selected', 'true')
+          item.tabIndex = 0
+          document.getElementById(item.dataset.panel)?.removeAttribute('hidden')
+
+          let parent = item.parentElement.closest('[role="treeitem"]')
+          while (parent) {
+            parent.setAttribute('aria-expanded', 'true')
+            parent = parent.parentElement.closest('[role="treeitem"]')
+          }
+
+          if (scroll) document.getElementById(item.dataset.panel)?.scrollIntoView()
+        }
+      },
+    )
+  })()
+</script>

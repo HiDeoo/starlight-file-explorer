@@ -1,0 +1,160 @@
+---
+import { Icon } from '@astrojs/starlight/components'
+
+import type { Entry } from '../libs/entries'
+
+interface Props {
+  depth?: number
+  entries: Entry[]
+  selected: string
+}
+
+const { depth = 0, entries, selected } = Astro.props
+---
+
+{entries.map((entry) => {
+  const isFolder = entry.type === 'folder'
+  const isFolderWithEntries = isFolder && entry.children.length > 0
+  const isSelected = entry.id === selected
+
+  return (
+    <li
+      aria-expanded={isFolderWithEntries ? !entry.collapsed : undefined}
+      aria-selected={isSelected}
+      class="sfe-tree-item"
+      data-panel={entry.id}
+      role="treeitem"
+      tabindex={isSelected ? 0 : -1}
+    >
+      <div class="sfe-tree-row" style={`--sfe-tree-depth: ${depth}`}>
+        {isFolderWithEntries && (
+          <svg aria-hidden="true" class="sfe-tree-toggle" fill="currentColor" viewBox="3 3 18 18">
+            <path d="M15 12 9.5 6.5v11z" />
+          </svg>
+        )}
+        {isFolder && <span class="sr-only">{Astro.locals.t('fileTree.directory')}</span>}
+        <Icon name={entry.icon} class:list={['sfe-tree-icon', isFolder && 'sfe-tree-icon-folder']} size="0.875rem" />
+        <span class="sfe-tree-label">
+          <bdi>{entry.name}</bdi>
+        </span>
+      </div>
+      {isFolderWithEntries && (
+        <ul role="group">
+          <Astro.self depth={depth + 1} entries={entry.children} {selected} />
+        </ul>
+      )}
+    </li>
+  )
+})}
+
+<style>
+  .sfe-tree-item {
+    --sfe-tree-gap: 0.375rem;
+    --sfe-tree-row-padding-block: 0.25rem;
+    --sfe-tree-row-padding-inline: 0.5rem;
+    --sfe-tree-toggle-size: 1em;
+    --sfe-tree-toggle-column: calc(var(--sfe-tree-toggle-size) + 0.125rem);
+
+    & > [role='group'] {
+      list-style: none;
+      padding: 0;
+    }
+
+    &[aria-expanded='false'] > [role='group'] {
+      block-size: 0;
+      overflow: clip;
+      visibility: hidden;
+    }
+
+    &[aria-selected='true'] > .sfe-tree-row {
+      background-color: var(--sl-color-text-accent);
+      color: var(--sl-color-text-invert);
+      font-weight: 600;
+
+      & :is(.sfe-tree-icon, .sfe-tree-toggle) {
+        color: inherit;
+      }
+
+      & .sfe-tree-toggle:hover {
+        background-color: color-mix(in hsl, currentColor 25%, transparent);
+      }
+    }
+
+    &[aria-expanded='true'] > .sfe-tree-row .sfe-tree-toggle path {
+      rotate: 90deg;
+    }
+
+    &:focus-visible {
+      outline: none;
+
+      & > .sfe-tree-row {
+        outline: 2px solid var(--sl-color-text-invert);
+        outline-offset: var(--sl-outline-offset-inside);
+      }
+    }
+  }
+
+  .sfe-tree-row {
+    align-items: center;
+    column-gap: var(--sfe-tree-gap);
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: [toggle] var(--sfe-tree-toggle-column) [icon] auto [label] minmax(0, 1fr);
+    padding-block: var(--sfe-tree-row-padding-block);
+    padding-inline: var(--sfe-tree-row-padding-inline);
+    padding-inline-start: calc(
+      var(--sfe-tree-row-padding-inline) + var(--sfe-tree-depth) * (var(--sfe-tree-toggle-column) + var(--sfe-tree-gap))
+    );
+
+    &:hover {
+      background-color: color-mix(in hsl, var(--sl-color-text-accent) 10%, transparent);
+    }
+  }
+
+  .sfe-tree-toggle {
+    --sfe-tree-toggle-padding: calc((1.5rem - var(--sfe-tree-toggle-size)) / 2);
+
+    border-radius: 0.25rem;
+    box-sizing: content-box;
+    color: var(--sl-color-gray-3);
+    grid-column: toggle;
+    height: var(--sfe-tree-toggle-size);
+    margin: calc(-1 * var(--sfe-tree-toggle-padding));
+    padding: var(--sfe-tree-toggle-padding);
+    width: var(--sfe-tree-toggle-size);
+
+    &:hover {
+      background-color: color-mix(in hsl, currentColor 10%, transparent);
+      color: var(--sl-color-white);
+    }
+
+    & path {
+      transform-box: fill-box;
+      transform-origin: center;
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition: rotate 0.2s ease-in-out;
+      }
+    }
+  }
+
+  :global([dir='rtl']) .sfe-tree-toggle path {
+    rotate: 180deg;
+  }
+
+  .sfe-tree-icon {
+    color: var(--sl-color-gray-3);
+    grid-column: icon;
+  }
+
+  .sfe-tree-icon-folder {
+    translate: 0 -0.05em;
+  }
+
+  .sfe-tree-label {
+    grid-column: label;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>

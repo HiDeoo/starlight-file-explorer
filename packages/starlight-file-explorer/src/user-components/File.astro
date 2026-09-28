@@ -1,0 +1,18 @@
+---
+import { EntryTagName, type EntryProps } from '../libs/entries'
+
+type Props = EntryProps
+
+const { badges, description, icon, name, selected } = Astro.props
+---
+
+<EntryTagName
+  data-type="file"
+  data-badges={badges && JSON.stringify(badges)}
+  data-description={description}
+  data-icon={icon}
+  data-name={name}
+  data-selected={selected || undefined}
+>
+  <slot />
+</EntryTagName>

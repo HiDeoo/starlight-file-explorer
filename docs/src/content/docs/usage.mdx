@@ -1,0 +1,354 @@
+---
+title: Usage
+description: Learn how to create a file explorer, add content to its files and folders, and customize them with descriptions, badges, icons, and more.
+---
+
+import { FileExplorer, File, Folder } from 'starlight-file-explorer'
+import { Preview } from '@hideoo/starlight-plugins-docs-components'
+
+To document files and folders of your project in an interactive file explorer, use the `<FileExplorer>`, `<File>`, and `<Folder>` components.
+
+<Preview>
+
+<FileExplorer slot="preview" label="Project structure">
+  <Folder name="src">
+
+    The source code of your project.
+
+    <File name="content.config.ts">
+
+      The content collections configuration file.
+
+    </File>
+
+  </Folder>
+  <File name="astro.config.mjs">
+
+    The Astro configuration file.
+
+  </File>
+</FileExplorer>
+
+</Preview>
+
+## Import
+
+```tsx
+import { FileExplorer, File, Folder } from 'starlight-file-explorer'
+```
+
+## Usage
+
+Use the `<FileExplorer>` component to display an interactive file explorer.
+A `<FileExplorer>` requires a [`label`](#label) prop describing its content.
+
+Add files and folders using the `<File>` and `<Folder>` components, which both require a [`name`](#name) prop.
+Nest `<File>` and `<Folder>` components inside a `<Folder>` to add files and folders to it.
+
+<Preview>
+
+```mdx
+import { FileExplorer, File, Folder } from 'starlight-file-explorer'
+
+<FileExplorer label="Project structure">
+  <Folder name="src">
+    <File name="content.config.ts" />
+  </Folder>
+  <File name="astro.config.mjs" />
+</FileExplorer>
+```
+
+<FileExplorer slot="preview" label="Project structure">
+  <Folder name="src">
+    <File name="content.config.ts" />
+  </Folder>
+  <File name="astro.config.mjs" />
+</FileExplorer>
+
+</Preview>
+
+### Add panel content
+
+Add content to a file or folder panel by writing Markdown or MDX inside its component, including [Starlight components](https://starlight.astro.build/components/using-components/).
+
+<Preview>
+
+```mdx {6,10-14}
+import { FileExplorer, File, Folder } from 'starlight-file-explorer'
+
+<FileExplorer label="Project structure">
+  <Folder name="src">
+
+    The source code of your project.
+
+    <File name="content.config.ts">
+
+      The [content collections](https://docs.astro.build/en/guides/content-collections/) configuration file.
+
+      :::note
+      Starlight requires a `docs` collection to be defined in this file.
+      :::
+
+    </File>
+
+  </Folder>
+</FileExplorer>
+```
+
+<FileExplorer slot="preview" label="Project structure">
+  <Folder name="src">
+
+    The source code of your project.
+
+    <File name="content.config.ts">
+
+      The [content collections](https://docs.astro.build/en/guides/content-collections/) configuration file.
+
+      :::note
+      Starlight requires a `docs` collection to be defined in this file.
+      :::
+
+    </File>
+
+  </Folder>
+</FileExplorer>
+
+</Preview>
+
+### Add descriptions
+
+Use the [`description`](#description) prop to display a short description below the name of a file or folder in its panel.
+
+<Preview>
+
+```mdx /description=".+?"/
+import { FileExplorer, File, Folder } from 'starlight-file-explorer'
+
+<FileExplorer label="Project structure">
+  <Folder name="src" description="Source code">
+    <File
+      name="content.config.ts"
+      description="Content collections configuration"
+    />
+  </Folder>
+</FileExplorer>
+```
+
+<FileExplorer slot="preview" label="Project structure">
+  <Folder name="src" description="Source code">
+    <File
+      name="content.config.ts"
+      description="Content collections configuration"
+    />
+  </Folder>
+</FileExplorer>
+
+</Preview>
+
+### Add badges
+
+Use the [`badges`](#badges) prop to display [badges](https://starlight.astro.build/components/badges/) in the panel of a file or folder.
+
+Pass a string for a single badge, or an array of strings and objects with a `text` and an optional `variant` for multiple or customized badges.
+
+<Preview>
+
+```mdx /badges=(?:"[^"]*"|{.+})/
+import { FileExplorer, File, Folder } from 'starlight-file-explorer'
+
+<FileExplorer label="Project structure">
+  <Folder name="src">
+    <File
+      name="content.config.ts"
+      badges={['TypeScript', { text: 'Required', variant: 'caution' }]}
+    />
+  </Folder>
+  <File name="astro.config.mjs" badges="JavaScript" />
+</FileExplorer>
+```
+
+<FileExplorer slot="preview" label="Project structure">
+  <Folder name="src">
+    <File
+      name="content.config.ts"
+      badges={['TypeScript', { text: 'Required', variant: 'caution' }]}
+    />
+  </Folder>
+  <File name="astro.config.mjs" badges="JavaScript" />
+</FileExplorer>
+
+</Preview>
+
+### Select a file or folder
+
+By default, the first file of a file explorer is selected.
+Use the [`selected`](#selected) prop to select a different file or folder instead.
+
+<Preview>
+
+```mdx "selected"
+import { FileExplorer, File, Folder } from 'starlight-file-explorer'
+
+<FileExplorer label="Project structure">
+  <Folder name="src">
+    <File name="content.config.ts" />
+  </Folder>
+  <File name="astro.config.mjs" selected />
+</FileExplorer>
+```
+
+<FileExplorer slot="preview" label="Project structure">
+  <Folder name="src">
+    <File name="content.config.ts" />
+  </Folder>
+  <File name="astro.config.mjs" selected />
+</FileExplorer>
+
+</Preview>
+
+### Collapse folders
+
+Folders are expanded by default.
+Use the [`collapsed`](#collapsed) prop to collapse a folder.
+Folders containing the [selected file or folder](#select-a-file-or-folder) are always expanded.
+
+<Preview>
+
+```mdx "collapsed"
+import { FileExplorer, File, Folder } from 'starlight-file-explorer'
+
+<FileExplorer label="Project structure">
+  <Folder name="public">
+    <File name="favicon.svg" />
+  </Folder>
+  <Folder name="src" collapsed>
+    <File name="content.config.ts" />
+  </Folder>
+</FileExplorer>
+```
+
+<FileExplorer slot="preview" label="Project structure">
+  <Folder name="public">
+    <File name="favicon.svg" />
+  </Folder>
+  <Folder name="src" collapsed>
+    <File name="content.config.ts" />
+  </Folder>
+</FileExplorer>
+
+</Preview>
+
+### Customize icons
+
+Files display an icon matching their name using the same icons as Starlight's [`<FileTree>`](https://starlight.astro.build/components/file-tree/) component.
+
+Use the [`icon`](#icon) prop to display any of [Starlight's built-in icons](https://starlight.astro.build/reference/icons/#all-icons) for a file or folder instead.
+
+<Preview>
+
+```mdx 'icon="star"'
+import { FileExplorer, File } from 'starlight-file-explorer'
+
+<FileExplorer label="Project structure">
+  <File name="astro.config.mjs" icon="star" />
+</FileExplorer>
+```
+
+<FileExplorer slot="preview" label="Project structure">
+  <File name="astro.config.mjs" icon="star" />
+</FileExplorer>
+
+</Preview>
+
+### Display a base path
+
+The panel of each file and folder displays its path in the file explorer.
+
+Use the [`base`](#base) prop to prefix the displayed paths, e.g. to show where the files are located in a larger project.
+
+<Preview>
+
+```mdx 'base="project"'
+import { FileExplorer, File, Folder } from 'starlight-file-explorer'
+
+<FileExplorer label="Project structure" base="project">
+  <Folder name="src">
+    <File name="content.config.ts" />
+  </Folder>
+</FileExplorer>
+```
+
+<FileExplorer slot="preview" label="Project structure" base="project">
+  <Folder name="src">
+    <File name="content.config.ts" />
+  </Folder>
+</FileExplorer>
+
+</Preview>
+
+## `<FileExplorer>` Props
+
+The `<FileExplorer>` component accepts the following props:
+
+### `label`
+
+**Required**  
+**Type:** `string`
+
+A label used by assistive technologies to describe the file explorer.
+
+### `base`
+
+**Type:** `string`
+
+A path to prefix the path of each file and folder in their panel.
+
+## `<File>` and `<Folder>` Props
+
+The `<File>` and `<Folder>` components accept the following props:
+
+### `name`
+
+**Required**  
+**Type:** `string`
+
+The name of the file or folder displayed in the file explorer and used in its path.
+It cannot contain a `/` and must be unique among the files and folders in the same folder.
+
+### `description`
+
+**Type:** `string`
+
+A short description displayed below the name of the file or folder in its panel.
+
+### `badges`
+
+**Type:** `string | Array<string | { text: string; variant?: 'note' | 'danger' | 'success' | 'caution' | 'tip' | 'default' }>`
+
+One or more [badges](https://starlight.astro.build/components/badges/) to display in the panel of the file or folder.
+
+### `selected`
+
+**Type:** `boolean`  
+**Default:** `false`
+
+Defines if the file or folder is selected by default or not.
+Only one file or folder can be selected.
+When no file or folder is selected, the first file is selected, or the first folder if there are no files.
+
+### `collapsed`
+
+**Type:** `boolean`  
+**Default:** `false`
+
+Defines if the folder is collapsed by default or not.
+A folder containing the selected file or folder is always expanded.
+
+This prop only applies to the `<Folder>` component.
+
+### `icon`
+
+**Type:** `string`
+
+The name of a [Starlight built-in icon](https://starlight.astro.build/reference/icons/#all-icons) to display for the file or folder.
+Defaults to an icon matching the file name for files, and to a folder icon for folders.
