@@ -33,11 +33,10 @@ export default defineConfig({
             { label: 'Usage', link: '/usage/' },
           ],
         },
-        // TODO(HiDeoo)
-        // {
-        //   label: 'Resources',
-        //   items: [{ label: 'Plugins and Tools', link: '/resources/starlight/' }],
-        // },
+        {
+          label: 'Resources',
+          items: [{ label: 'Plugins and Tools', slug: 'resources/starlight' }],
+        },
       ],
       social: [
         {
